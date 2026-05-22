@@ -1,0 +1,57 @@
+.teams-hero { padding: 2rem 1.5rem 3rem; max-width: 1280px; margin: 0 auto; }
+.teams-hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; margin-top: 1.5rem; }
+.teams-hero h1 span { color: var(--primary); }
+.teams-hero p { margin-top: 1rem; font-size: 1.125rem; color: var(--muted-foreground); }
+
+.groups-section { padding-bottom: 5rem; }
+.groups-grid { display: grid; gap: 1.5rem; }
+@media (min-width: 640px) { .groups-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .groups-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.group-card {
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--card); backdrop-filter: blur(12px);
+  padding: 1.5rem; transition: border-color 0.2s;
+}
+.group-card:hover { border-color: oklch(0.82 0.22 145 / 0.5); }
+.group-header {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;
+  padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.group-letter {
+  width: 2.5rem; height: 2.5rem; border-radius: calc(var(--radius) - 2px);
+  background: oklch(0.82 0.22 145 / 0.15); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1.125rem; flex-shrink: 0;
+}
+.group-label { font-weight: 700; font-size: 1rem; }
+.group-sublabel { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.1rem; }
+
+.team-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.team-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0.75rem; border-radius: calc(var(--radius) - 2px);
+  background: oklch(0.18 0.04 160 / 0.5); transition: background 0.15s;
+}
+.team-item:hover { background: oklch(0.28 0.04 160 / 0.7); }
+.team-flag { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+.team-name { font-size: 0.9rem; font-weight: 600; }
+.team-badge {
+  margin-left: auto; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; padding: 0.15rem 0.4rem; border-radius: 999px;
+  background: oklch(0.82 0.22 145 / 0.15); color: var(--primary);
+  border: 1px solid oklch(0.82 0.22 145 / 0.3); white-space: nowrap;
+}
+
+.conf-strip { padding-bottom: 3rem; }
+.conf-strip h2 { font-size: 1.25rem; font-weight: 900; margin-bottom: 1.25rem; }
+.conf-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+@media (min-width: 640px) { .conf-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .conf-grid { grid-template-columns: repeat(6, 1fr); } }
+.conf-item {
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--card); backdrop-filter: blur(12px);
+  padding: 1rem; text-align: center;
+}
+.conf-value { font-size: 2rem; font-weight: 900; color: var(--primary); line-height: 1; }
+.conf-name { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); margin-top: 0.4rem; }

@@ -3,19 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Cup 2026 — The Greatest Football Tournament on Earth</title>
+  <title>ESportsBattle World Cup Championship 2026</title>
   <meta name="description" content="Discover the FIFA World Cup 2026: 48 nations, 16 host cities across three countries, and one month of unforgettable football." />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favico.ico" />
+  <link rel="stylesheet" href="../css/styles.css" />
 </head>
 <body id="top">
 
   <div class="bg-fixed"></div>
 
   <header>
-    <div class="header-top">
+    <div class="header-inner">
       <a href="#top" class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
-        <img src="assets/logo.svg" alt="Sportsbattle" />
+        <img src="../assets/logo.svg" alt="Sportsbattle" />
       </a>
+
+      <nav>
+        <a href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+          </svg>
+          ABOUT
+        </a>
+        <a href="teams.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
+          </svg>
+          TEAMS
+        </a>
+        <a href="players.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          RESULTS
+        </a>
+        <a href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+            <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+          </svg>
+          NEWS
+        </a>
+        <a href="#">TERMS AND CONDITIONS</a>
+      </nav>
 
       <div class="header-actions">
         <div class="social-links">
@@ -36,55 +70,20 @@
               <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
             </svg>
           </a>
-          <a href="https://www.youtube.com/channel/UCQxv_xu6lXhLHAv264U875g" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="YouTube">
+          <a href="https://www.youtube.com/channel/UCHNQsFRH6XcjrdtbL4humHQ" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="YouTube">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
               <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
             </svg>
           </a>
         </div>
-
         <div class="divider"></div>
-
         <div class="lang-switcher">
           <button class="lang-btn active" data-lang="EN">EN</button>
           <button class="lang-btn" data-lang="UA">UA</button>
         </div>
       </div>
     </div>
-
-    <nav>
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-          <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-          <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
-        </svg>
-        ABOUT
-      </a>
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
-        </svg>
-        TEAMS
-      </a>
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        PLAYERS
-      </a>
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
-          <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
-        </svg>
-        NEWS
-      </a>
-      <a href="#">TERMS AND CONDITIONS</a>
-    </nav>
   </header>
 
   <section class="hero">
@@ -105,7 +104,7 @@
   <section class="video-section container">
     <div class="video-wrapper">
       <video autoplay muted loop controls playsinline>
-        <source src="assets/promo.mp4" type="video/mp4">
+        <source src="../assets/promo.mp4" type="video/mp4">
       </video>
       <div class="video-placeholder" style="display:none">
         <div class="video-play-icon">
@@ -216,7 +215,9 @@
   </section>
 
   <footer>
-    <span id="footer-text">© 2026 World Cup Live. An independent fan platform. Not affiliated with FIFA.</span>
+    <span id="footer-text">© Copyright 2026 - ESportsBattle. All rights are reserved.<br/>
+     We’re using cookies and here’s our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Privacy Policy</a>.<br/>
+     No part of ESportsBattle materials may be used without prior written permission by the Company and a valid link referring to the source.</span>
   </footer>
 
   <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
@@ -225,6 +226,6 @@
     </svg>
   </button>
 
-  <script src="script.js"></script>
+  <script src="../js/script.js"></script>
 </body>
 </html>
