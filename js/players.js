@@ -329,9 +329,9 @@ function renderCard(m) {
   const color  = tournamentColor(m.tournament);
   const status = cancelled ? 'cancelled' : matchStatus(m);
   const statusHTML = {
-    live:      `<span class="match-status live"><span class="status-dot"></span>В ЕФІРІ</span>`,
-    finished:  `<span class="match-status finished">Завершено</span>`,
-    scheduled: `<span class="match-status scheduled">Заплановано</span>`,
+    live:      `<span class="match-status live"><span class="status-dot"></span>LIVE</span>`,
+    finished:  `<span class="match-status finished">Finished</span>`,
+    scheduled: `<span class="match-status scheduled">Scheduled</span>`,
     cancelled: '',
     null:      '',
   }[status] ?? '';
@@ -554,11 +554,11 @@ function renderLeagues() {
     blocksHTML = '<div class="error-state">No completed matches for this day.</div>';
   } else {
     if (activeLeagues.length) {
-      blocksHTML += `<div class="leagues-section-label active-label">В процесі</div>`;
+      blocksHTML += `<div class="leagues-section-label active-label">In progress</div>`;
       blocksHTML += activeLeagues.map(([t, data]) => leagueBlockHTML(t, data)).join('');
     }
     if (finishedLeagues.length) {
-      blocksHTML += `<div class="leagues-section-label finished-label">Завершені</div>`;
+      blocksHTML += `<div class="leagues-section-label finished-label">Finished</div>`;
       blocksHTML += finishedLeagues.map(([t, data]) => leagueBlockHTML(t, data)).join('');
     }
   }
@@ -582,6 +582,7 @@ function switchView(view) {
   document.getElementById('resultsSection').style.display = showResults ? '' : 'none';
   document.getElementById('leaguesSection').style.display = showResults ? 'none' : '';
   if (view === 'leagues') renderLeagues();
+  else if (view === 'results') render();
 }
 
 function applyFilters() {
@@ -605,6 +606,8 @@ function applyFilters() {
 let allMatches   = [];
 let activeFilter = 'all';
 let currentPage  = 1;
+
+const CACHE_KEY = 'esb_csv_v2';
 
 window.goPage = function(p) {
   currentPage = p;
@@ -637,15 +640,8 @@ function render() {
 
 function resetPage() { currentPage = 1; render(); }
 
-// ── Fetch & parse sheet data ──────────────────────────────────────────────────
-// Called once on init and then every 2 minutes to pick up new rows
-// (scheduled/live matches added to the sheet after page load).
-async function fetchAndUpdate() {
-  // Cache-bust so browsers always get fresh CSV, not a stale cached version
-  const url = SHEET_CSV + '&_=' + Date.now();
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  const text = await resp.text();
+// ── Parse CSV text into allMatches / leagueDays ───────────────────────────────
+function parseCSVToMatches(text) {
   const rows = parseCSV(text);
 
   const headerIdx = rows.findIndex(r =>
@@ -668,10 +664,22 @@ async function fetchAndUpdate() {
       half1: v(r, cols.half1), half2: v(r, cols.half2),
     }));
 
-  // Rebuild league-day list
   leagueDays = [...new Set(allMatches.map(m => matchDayKey(m)))]
     .filter(Boolean)
     .sort((a, b) => sheetDateToTs(b) - sheetDateToTs(a));
+}
+
+// ── Fetch fresh CSV from Google Sheets, cache it, parse it ───────────────────
+async function fetchAndUpdate() {
+  const url = SHEET_CSV + '&_=' + Date.now();
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  const text = await resp.text();
+
+  // Save raw CSV to localStorage so next page open is instant
+  try { localStorage.setItem(CACHE_KEY, text); } catch (e) { /* quota exceeded — skip */ }
+
+  parseCSVToMatches(text);
 }
 
 // ── Update filter-bar buttons whenever allMatches changes ─────────────────────
@@ -687,19 +695,45 @@ function refreshFilterBar() {
 }
 
 async function init() {
-  const grid      = document.getElementById('resultsGrid');
-  const filterBar = document.getElementById('filterBar');
+  const grid             = document.getElementById('resultsGrid');
+  const filterBar        = document.getElementById('filterBar');
+  const leaguesContainer = document.getElementById('leaguesContainer');
 
-  grid.innerHTML = '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
-
+  // ── Step 1: Try localStorage cache → instant first paint ─────────────────
+  let hasCached = false;
   try {
-    await fetchAndUpdate();
-  } catch (err) {
-    grid.innerHTML = `<div class="error-state">Could not load results: ${err.message}</div>`;
-    return;
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      parseCSVToMatches(cached);
+      refreshFilterBar();
+      renderLeagues();       // renders immediately from cache
+      hasCached = true;
+    }
+  } catch (e) { /* corrupt cache — ignore */ }
+
+  // ── Step 2: Show loading skeleton only when there is no cache ────────────
+  if (!hasCached) {
+    const dots = '<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>';
+    if (leaguesContainer) leaguesContainer.innerHTML = `<div class="loading-state">${dots}</div>`;
+    grid.innerHTML = `<div class="loading-state">${dots}</div>`;
   }
 
-  refreshFilterBar();
+  // ── Step 3: Fetch fresh data (blocks if no cache; silent background if cached) ──
+  try {
+    await fetchAndUpdate();
+    refreshFilterBar();
+    if (activeView === 'results') render();
+    else renderLeagues();
+  } catch (err) {
+    if (!hasCached) {
+      const msg = `<div class="error-state">Could not load results: ${err.message}</div>`;
+      grid.innerHTML = msg;
+      if (leaguesContainer) leaguesContainer.innerHTML = msg;
+      return;
+    }
+    // Cached data is already displayed — silently swallow the network error
+    console.warn('Background refresh failed:', err);
+  }
 
   filterBar.addEventListener('click', e => {
     const btn = e.target.closest('.filter-btn');
@@ -740,6 +774,8 @@ async function init() {
     btn.addEventListener('click', () => switchView(btn.dataset.view));
   });
 
+  // Populate both grids so switching tabs is instant
+  render();
   renderLeagues();
 }
 

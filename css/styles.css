@@ -26,7 +26,7 @@ button { cursor: pointer; font-family: inherit; }
   position: fixed; inset: 0; z-index: -10;
   background-image:
     linear-gradient(to bottom, oklch(0.18 0.04 160 / 0.85), oklch(0.18 0.04 160 / 0.95)),
-    url('assets/stadium-bg.jpg');
+    url('../assets/stadium-bg.jpg');
   background-size: cover; background-position: center;
 }
 
