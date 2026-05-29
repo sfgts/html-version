@@ -34,7 +34,7 @@
   background: oklch(0.18 0.04 160 / 0.5); transition: background 0.15s;
 }
 .team-item:hover { background: oklch(0.28 0.04 160 / 0.7); }
-.team-flag { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+.team-flag { width: 28px; height: auto; border-radius: 2px; flex-shrink: 0; display: block; }
 .team-name { font-size: 0.9rem; font-weight: 600; }
 .team-badge {
   margin-left: auto; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
