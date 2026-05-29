@@ -8,6 +8,94 @@
   <link rel="icon" type="image/svg+xml" href="../assets/logo.svg" />
   <link rel="stylesheet" href="../css/styles.css" />
   <link rel="stylesheet" href="../css/players.css" />
+  <style>
+    /* ── Unified filter panel ── */
+    .lf-panel {
+      max-width: 1600px; margin: 0 auto;
+      padding: 0 1.5rem 0.5rem;
+    }
+    .lf-card {
+      background: oklch(0.14 0.02 145 / 0.7);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .lf-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .lf-label {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+      min-width: 3.5rem;
+      flex-shrink: 0;
+    }
+    .lf-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+    .lf-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+    .lf-btn {
+      padding: 0.28rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .lf-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .lf-btn.active-group {
+      background: oklch(0.55 0.2 280);
+      border-color: oklch(0.55 0.2 280);
+      color: #fff;
+    }
+    .lf-btn.active-month {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000;
+      font-weight: 700;
+    }
+    .lf-btn.active-filter {
+      background: oklch(0.62 0.18 55);
+      border-color: oklch(0.62 0.18 55);
+      color: #000;
+      font-weight: 700;
+    }
+    .lf-date-input {
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--foreground);
+      font-size: 0.72rem;
+      cursor: pointer;
+      color-scheme: dark;
+    }
+    .lf-date-input:focus { outline: none; border-color: var(--primary); }
+    /* hide source row if only one source */
+    .lf-row.lf-source-row[data-count="1"],
+    .lf-row.lf-source-row[data-count="0"] { display: none; }
+    .lf-row.lf-source-row[data-count="1"] + .lf-divider { display: none; }
+  </style>
 </head>
 <body id="top">
 
@@ -91,30 +179,42 @@
     </div>
   </section>
 
-  <section class="filter-section container" id="filterSection" style="display:none">
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-btn active" data-filter="all">All</button>
+  <div class="lf-panel" id="lfPanel">
+    <div class="lf-card">
+      <div class="lf-row lf-source-row" id="lfSourceRow" data-count="0">
+        <span class="lf-label">Group</span>
+        <div class="lf-bar" id="sourceBar"></div>
+      </div>
+      <hr class="lf-divider" id="lfDivider" />
+      <div class="lf-row">
+        <span class="lf-label">Month</span>
+        <div class="lf-bar" id="monthBar">
+          <button class="lf-btn active-month" data-month="all">All time</button>
+        </div>
+      </div>
+      <!-- Results-view-only rows -->
+      <hr class="lf-divider lf-results-only" style="display:none" />
+      <div class="lf-row lf-results-only" style="display:none">
+        <span class="lf-label">League</span>
+        <div class="lf-bar" id="tournamentBar">
+          <button class="lf-btn active-filter" data-filter="all">All</button>
+        </div>
+      </div>
+      <hr class="lf-divider lf-results-only" style="display:none" />
+      <div class="lf-row lf-results-only" style="display:none; flex-wrap:wrap; gap:0.5rem; align-items:center">
+        <span class="lf-label">Date</span>
+        <input type="date" id="dateFrom" class="lf-date-input" />
+        <span style="color:var(--muted-foreground);font-size:0.72rem">→</span>
+        <input type="date" id="dateTo" class="lf-date-input" />
+        <button class="lf-btn" id="clearFilters" style="margin-left:0.25rem">Clear</button>
+      </div>
     </div>
-    <div class="range-filters">
-      <div class="range-group">
-        <label>Date from</label>
-        <input type="date" id="dateFrom" />
-      </div>
-      <div class="range-group">
-        <label>Date to</label>
-        <input type="date" id="dateTo" />
-      </div>
-      <div class="range-group">
-        <label>Time from</label>
-        <input type="time" id="timeFrom" />
-      </div>
-      <div class="range-group">
-        <label>Time to</label>
-        <input type="time" id="timeTo" />
-      </div>
-      <button class="clear-btn" id="clearFilters">Clear</button>
-    </div>
-  </section>
+  </div>
+
+  <!-- old filter section removed; replaced by lf-panel rows above -->
+  <div id="filterSection" style="display:none">
+    <div id="filterBar"></div>
+  </div>
 
   <section class="results-section container" id="resultsSection" style="display:none">
     <div class="results-count" id="resultsCount"></div>

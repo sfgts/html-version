@@ -288,6 +288,12 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   height: 100%; width: auto; max-width: 180%;
   object-fit: contain; object-position: bottom center;
 }
+/* Team logo — centered, with padding so crest has breathing room */
+.modal-photo-img.modal-team-logo {
+  bottom: auto; top: 50%; transform: translate(-50%, -50%);
+  height: auto; max-height: 70%; max-width: 75%;
+  object-position: center;
+}
 .modal-photo-avatar {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: 100px; height: 100px; border-radius: 50%;
@@ -340,7 +346,9 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 .modal-goals-lbl { display: block; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted-foreground); margin-top: 0.3rem; }
 .modal-goals-sep { width: 1px; background: var(--border); align-self: stretch; }
 
-.modal-tour-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); margin-bottom: 0.75rem; }
+.modal-tour-section { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.modal-tour-title { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); margin-bottom: 0.6rem; }
+.modal-tour-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .modal-tour-list { display: flex; flex-direction: column; gap: 0.5rem; }
 .modal-tour-row {
   display: flex; align-items: center; gap: 0.75rem;
