@@ -1,31 +1,5 @@
 {
   "roster": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLhGzVHo3s86JAubguvbkf4ZEMF45Wn6rNlS0YtnAkzNoMasEduowLUGHIOGU2uh0WAzWsMpXojkFW/pub?gid=0&single=true&output=csv",
-  "months": [
-    {
-      "label": "May 2026",
-      "groups": [
-        {
-          "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRthpqRg3mDNxyISDU9xMlnipaZulhUCb8enHnLNnPK3rQRq-xe3fX1gpPtMznkaQdjcdoDR2Vhdvf/pub?output=csv&gid=1202646627",
-          "label": "Satellite"
-        },
-        {
-          "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRY9ZkMqg-SfKBIyPeoiSFJy6O7keWHF8hAbPs_9Rpqc_acri0k40xdet-uEPGB6pFh1coa33AKMrA/pub?gid=1439567659&single=true&output=csv",
-          "label": "May 2x6"
-        },
-        {
-          "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRY9ZkMqg-SfKBIyPeoiSFJy6O7keWHF8hAbPs_9Rpqc_acri0k40xdet-uEPGB6pFh1coa33AKMrA/pub?gid=1592479557&single=true&output=csv",
-          "label": "May 2x4"
-        }
-      ]
-    },
-
-    {"label": "June 2026",
-      "groups": [
-        {
-          "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRY9ZkMqg-SfKBIyPeoiSFJy6O7keWHF8hAbPs_9Rpqc_acri0k40xdet-uEPGB6pFh1coa33AKMrA/pub?gid=743157522&single=true&output=csv",
-          "label": "June 2x4"
-        }
-      ]
-    }
-  ]
+  "months": [],
+  "tournamentIndex": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQr3d84BsqGAWZlyzDQnHC9VECNB_PMRLX6NyrseDA5pHxsmYTi9ZrVxOgB6AKC7GFfr4nTDggpjxar/pub?gid=0&single=true&output=csv"
 }

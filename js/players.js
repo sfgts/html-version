@@ -616,84 +616,7 @@ function leagueBlockHTML(tournament, data) {
     </div>`;
 }
 
-let leagueDays   = [];   // sorted unique dates (newest first)
-let leagueDayIdx = 0;    // index into leagueDays
-
-function renderLeagues() {
-  const container = document.getElementById('leaguesContainer');
-  if (!container) return;
-
-  // Apply source + month filters to match set
-  const activeMatches = allMatches.filter(m => {
-    if (activeSource !== 'all' && m._source !== activeSource) return false;
-    if (activeMonth  !== 'all' && matchMonthKey(m) !== activeMonth) return false;
-    return true;
-  });
-
-  // Rebuild visible days from filtered matches
-  const visibleDays = [...new Set(activeMatches.map(m => matchDayKey(m)).filter(Boolean))]
-    .sort((a, b) => sheetDateToTs(b) - sheetDateToTs(a));
-
-  if (!visibleDays.length) {
-    container.innerHTML = '<div class="error-state">No data for this period.</div>';
-    return;
-  }
-
-  const safeIdx = Math.min(leagueDayIdx, visibleDays.length - 1);
-  const date    = visibleDays[safeIdx];
-  const total   = visibleDays.length;
-  const leagues = computeLeaguesForDate(date, activeMatches);
-
-  // Sort: active leagues (live/scheduled) first, then finished — within each group by latestTs desc
-  // "most recent match time = shown first", exactly like results page
-  const allEntries = Object.entries(leagues)
-    .sort(([, a], [, b]) => {
-      const aPri = a.active ? 0 : 1;
-      const bPri = b.active ? 0 : 1;
-      if (aPri !== bPri) return aPri - bPri;
-      return b.latestTs - a.latestTs; // newest match time first in both groups
-    });
-
-  // Active first, then finished — both groups sorted by latest match time desc
-  const activeLeagues   = allEntries.filter(([, d]) =>  d.active);
-  const finishedLeagues = allEntries.filter(([, d]) => !d.active);
-
-  // pagination: page 1 = newest, page N = oldest (within visible month)
-  const curPage = safeIdx + 1;
-  const WING = 2;
-  const pages = [];
-  for (let p = 1; p <= total; p++) {
-    if (p === 1 || p === total || (p >= curPage - WING && p <= curPage + WING)) pages.push(p);
-  }
-  const pageBtns = [];
-  let prev = 0;
-  for (const p of pages) {
-    if (p - prev > 1) pageBtns.push('<span class="page-ellipsis">…</span>');
-    pageBtns.push(`<button class="page-btn${p === curPage ? ' active' : ''}" onclick="leagueGoDay(${p - 1})">${p}</button>`);
-    prev = p;
-  }
-  const paginationHTML = `<div class="pagination" style="margin-top:2.5rem">${pageBtns.join('')}</div>`;
-
-  const dateHeader = `<div class="league-day-header">${date}</div>`;
-
-  let blocksHTML = '';
-  if (!allEntries.length) {
-    blocksHTML = '<div class="error-state">No matches for this day.</div>';
-  } else {
-    // Active first (with IN PROGRESS badge on each block), then finished — no section headers
-    blocksHTML = [...activeLeagues, ...finishedLeagues]
-      .map(([t, data]) => leagueBlockHTML(t, data))
-      .join('');
-  }
-
-  container.innerHTML = dateHeader + blocksHTML + paginationHTML;
-}
-
-window.leagueGoDay = function(idx) {
-  leagueDayIdx = idx;
-  renderLeagues();
-  window.scrollTo({ top: document.getElementById('leaguesSection').offsetTop - 80, behavior: 'smooth' });
-};
+// renderLeagues and leagueGoDay are defined in tournament.js (loaded after this file)
 
 let activeView = 'leagues';
 
@@ -733,7 +656,7 @@ let activeSource  = 'all';
 let currentPage   = 1;
 let dataReady     = false; // true once first paint (cache or fetch) is done
 
-const CACHE_KEY = 'esb_matches_v6';
+const CACHE_KEY = 'esb_matches_v7';
 
 window.goPage = function(p) {
   currentPage = p;
@@ -764,9 +687,15 @@ function render() {
 
   if (countEl) countEl.textContent = `${filtered.length} matches · page ${currentPage} of ${totalPages}`;
 
-  grid.innerHTML = page.length
-    ? page.map(renderCard).join('')
-    : '<div class="error-state">No matches found.</div>';
+  const lfPanelEl = document.getElementById('lfPanel');
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    if (countEl) countEl.textContent = '';
+    if (lfPanelEl) lfPanelEl.style.display = 'none';
+    return;
+  }
+  if (lfPanelEl) lfPanelEl.style.display = '';
+  grid.innerHTML = page.map(renderCard).join('');
 
   renderPagination(totalPages);
 }
@@ -970,6 +899,8 @@ async function init() {
   // ── Step 3: Fetch sources config, then all match sheets in parallel ───────
   try {
     const sources = await fetch(SOURCES_URL + '?_=' + Date.now()).then(r => r.json());
+    // Init tournament group stage (tournament.js)
+    if (typeof initTournament === 'function') initTournament(sources);
     await fetchAndUpdate(sources);
     dataReady = true;
     refreshSourceBar();
@@ -1061,24 +992,22 @@ async function init() {
 document.addEventListener('DOMContentLoaded', () => {
   init();
 
-  // Re-render every 30 s — keeps live/finished badges correct as time passes
-  setInterval(() => {
-    if (activeView === 'results') render();
-    else if (activeView === 'leagues') renderLeagues();
-  }, 30_000);
-
-  // Re-fetch all sheets every 2 minutes — picks up new matches
-  setInterval(async () => {
+  // Manual refresh — triggered by the refresh button in the header
+  window.manualRefresh = async function() {
+    const btn = document.getElementById('refreshBtn');
+    if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
     try {
       const sources = await fetch(SOURCES_URL + '?_=' + Date.now()).then(r => r.json());
+      if (typeof initTournament === 'function') await initTournament(sources);
       await fetchAndUpdate(sources);
-      refreshSourceBar();
-      refreshMonthBar();
-      refreshFilterBar();
+      dataReady = true;
+      refreshSourceBar(); refreshMonthBar(); refreshFilterBar();
       if (activeView === 'results') render();
-      else if (activeView === 'leagues') renderLeagues();
+      else renderLeagues();
     } catch (e) {
-      console.warn('Auto-refresh failed:', e);
+      console.warn('Refresh failed:', e);
+    } finally {
+      if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
     }
-  }, 2 * 60 * 1000);
+  };
 });

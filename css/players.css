@@ -4,7 +4,7 @@
 .results-hero p { margin-top: 0.75rem; font-size: 1rem; color: var(--muted-foreground); }
 
 .filter-section.container,
-.results-section.container { max-width: 1600px; }
+.results-section.container { max-width: none !important; }
 
 /* ── View tabs ── */
 .view-tabs {
@@ -20,7 +20,7 @@
 .view-tab.active { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
 
 /* ── Leagues section ── */
-.leagues-section { padding-bottom: 5rem; }
+.leagues-section { padding-bottom: 5rem; max-width: none !important; padding-left: 1cm; padding-right: 1cm; }
 
 .league-day-header {
   font-size: 0.72rem; font-weight: 700; color: var(--muted-foreground);
@@ -52,15 +52,31 @@
 }
 
 .league-block-header {
-  padding: 1rem 1.25rem 0.9rem;
+  padding: 0.85rem 1.25rem 0.8rem;
   border-bottom: 1px solid var(--border);
   background: oklch(0.20 0.04 160 / 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 .league-block-name {
   font-size: 1rem; font-weight: 900; letter-spacing: -0.01em; color: var(--foreground);
 }
 .league-block-meta {
   margin-top: 0.2rem; font-size: 0.68rem; color: var(--muted-foreground); font-weight: 600;
+}
+/* Group status badge — always reserves height so layout doesn't shift */
+.tg-badge {
+  font-size: 0.65rem;
+  padding: 0.18rem 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+}
+.tg-badge--empty {
+  height: 1.4rem; /* same height as a real badge */
+  visibility: hidden;
 }
 .league-block-meta span { margin-right: 1rem; }
 
@@ -144,7 +160,7 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 }
 .clear-btn:hover { border-color: var(--primary); color: var(--primary); }
 
-.results-section { padding-bottom: 5rem; }
+.results-section { padding-bottom: 5rem; max-width: none !important; padding-left: 0; padding-right: 0; }
 .results-count { font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: 1rem; font-weight: 600; }
 
 .results-grid-inner {
@@ -374,3 +390,265 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 }
 .loading-dot:nth-child(2) { animation-delay: 0.2s; }
 .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ── Bracket (GRID sheet) ───────────────────────────────────────────────────── */
+.bracket-view {
+  padding: 1cm;
+}
+
+/* Horizontal track: rounds left-to-right */
+.bracket-track {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Each round column — fixed equal width */
+.bcol {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 0%;
+  width: 0; /* forces equal distribution via flex-grow */
+}
+.bcol-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+  padding: 0 0.4rem 0.5rem;
+}
+.bcol-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+/* Connecting line between rounds */
+.bcol-sep {
+  width: 2rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-top: 1.5rem; /* align with first card (skip label height) */
+}
+.bcol-sep::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, oklch(0.38 0.1 160), oklch(0.25 0.06 160));
+}
+
+/* ── Match card (bcard) ── */
+.bcard {
+  width: 100%;
+  height: 100%;
+  background: oklch(0.16 0.04 160 / 0.85);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.15s;
+}
+.bcard:hover { border-color: oklch(0.45 0.1 160); }
+
+.bcard-time {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  padding: 0.2rem 0.6rem 0;
+  letter-spacing: 0.04em;
+}
+.bcard-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.6rem;
+  transition: background 0.15s;
+}
+.bcard-row.win {
+  background: oklch(0.22 0.07 145 / 0.5);
+}
+.bcard-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.bcard-ht {
+  position: absolute;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  background: oklch(0.16 0.04 160);
+  padding: 0 0.3rem;
+  letter-spacing: 0.02em;
+}
+.bcard-flag {
+  width: 22px;
+  height: auto;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.bcard-flag--empty {
+  width: 22px;
+  height: 14px;
+  display: inline-block;
+}
+.bcard-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  flex: 1;
+}
+.bcard-team {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.bcard-row.win .bcard-team { color: var(--primary); }
+.bcard-team.tbd { color: var(--muted-foreground); font-style: italic; font-weight: 400; }
+.bcard-player {
+  font-size: 0.62rem;
+  color: var(--muted-foreground);
+}
+.bcard-score {
+  font-size: 0.95rem;
+  font-weight: 900;
+  min-width: 1.2rem;
+  text-align: right;
+  color: var(--foreground);
+  flex-shrink: 0;
+}
+.bcard-row.win .bcard-score { color: var(--primary); }
+
+/* ── Refresh button ─────────────────────────────────────────────────────────── */
+.refresh-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 2.2rem; height: 2.2rem; border-radius: 50%;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted-foreground); cursor: pointer; transition: all 0.2s;
+  flex-shrink: 0;
+}
+.refresh-btn svg { width: 1rem; height: 1rem; }
+.refresh-btn:hover { border-color: var(--primary); color: var(--primary); }
+.refresh-btn:disabled { opacity: 0.5; cursor: default; }
+.refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Tournament Group Stage ─────────────────────────────────────────────────── */
+.tournament-groups-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 860px) {
+  .tournament-groups-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1400px) {
+  .tournament-groups-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1800px) {
+  .tournament-groups-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Remove bottom margin on league-block inside the grid (grid gap handles spacing) */
+.tournament-groups-grid .league-block { margin-bottom: 0; }
+
+/* Match rows inside a group card */
+.tgroup-matches {
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.tgroup-match {
+  display: grid;
+  grid-template-columns: 2.8rem 1fr 3.2rem 1fr;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.4rem;
+  background: oklch(0.14 0.02 145 / 0.35);
+  font-size: 0.77rem;
+}
+.tgm-time {
+  color: var(--muted-foreground);
+  font-size: 0.67rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tgm-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  min-width: 0;
+}
+.tgm-side.right {
+  text-align: right;
+  align-items: flex-end;
+}
+.tgm-player {
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tgm-player.winner { color: var(--primary); }
+.tgm-team {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.65rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tgm-flag {
+  width: 16px;
+  height: auto;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: block;
+}
+.tgm-score {
+  text-align: center;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+}
+.tgm-ft {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--foreground);
+}
+.tgm-ht {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+.team-flag-sm {
+  width: 28px;
+  height: auto;
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: block;
+}
+.tg-placeholder {
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}

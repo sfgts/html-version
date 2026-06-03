@@ -1,6 +1,6 @@
 const SOURCES_URL      = '../assets/sources.json';
 const ROSTER_CACHE_KEY = 'esb_roster_v1';
-const CACHE_KEY        = 'esb_matches_v6';
+const CACHE_KEY        = 'esb_matches_v7';
 
 /* ── CSV parsing ── */
 function parseCSV(text) {
