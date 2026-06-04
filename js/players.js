@@ -1010,4 +1010,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
     }
   };
+
+  // Auto-refresh — controlled by user via UI
+  let autoRefreshTimer = null;
+  window.setAutoRefresh = function(seconds) {
+    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+    // Update button states
+    document.querySelectorAll('.ar-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.querySelector(`.ar-btn[data-s="${seconds}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+    if (seconds > 0) {
+      autoRefreshTimer = setInterval(() => {
+        if (!document.hidden) window.manualRefresh();
+      }, seconds * 1000);
+    }
+  };
 });

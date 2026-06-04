@@ -42,7 +42,7 @@ async function fetchGviz(spreadsheetId, sheetName) {
   // (без цього gviz обрізає колонки по останньому заголовку в рядку 1)
   const url =
     `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq` +
-    `?tqx=out:json&headers=0&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+    `?tqx=out:json&headers=0&sheet=${encodeURIComponent(sheetName)}&range=A1:Z30&_=${Date.now()}`;
 
   const text = await fetch(url).then(r => {
     if (!r.ok) throw new Error(`HTTP ${r.status} — sheet "${sheetName}"`);
@@ -342,7 +342,11 @@ function groupStatus(matches) {
   const scored = matches.filter(m =>
     m.score1 !== '' && m.score2 !== '' && !isNaN(+m.score1) && !isNaN(+m.score2)
   );
-  if (scored.length === 0)              return '';
+  const hasAnyData = matches.some(m =>
+    (m.score1 !== '' && m.score2 !== '' && !isNaN(+m.score1) && !isNaN(+m.score2)) ||
+    (m.half1  !== '' && m.half2  !== '' && !isNaN(+m.half1)  && !isNaN(+m.half2))
+  );
+  if (!hasAnyData)                      return '';
   if (scored.length === matches.length) return 'finished';
   return 'live';
 }
@@ -393,18 +397,32 @@ function renderGroupCard(group) {
   const matchRowsHTML = matches.map(m => {
     const hasScore = m.score1 !== '' && m.score2 !== ''
       && !isNaN(+m.score1) && !isNaN(+m.score2);
+    const hasHT = m.half1 !== '' && m.half2 !== ''
+      && !isNaN(+m.half1) && !isNaN(+m.half2);
+    const isLive = hasHT && !hasScore; // half-time entered, final not yet
+
     const s1 = +m.score1, s2 = +m.score2;
     const w1 = hasScore && s1 > s2;
     const w2 = hasScore && s2 > s1;
-    return `<div class="tgroup-match">
+
+    let scoreHTML;
+    if (hasScore) {
+      scoreHTML = `<span class="tgm-ft">${m.score1}:${m.score2}</span>
+        ${hasHT ? `<span class="tgm-ht">${m.half1}:${m.half2}</span>` : ''}`;
+    } else if (hasHT) {
+      scoreHTML = `<span class="tgm-ft live-ht">HT ${m.half1}:${m.half2}</span>`;
+    } else {
+      scoreHTML = `<span class="tgm-ft">—:—</span>`;
+    }
+
+    return `<div class="tgroup-match${isLive ? ' match-live' : ''}">
       <span class="tgm-time">${m.time}</span>
       <div class="tgm-side">
         <span class="tgm-player${w1 ? ' winner' : ''}">${m.player1}</span>
         <span class="tgm-team">${flagImg(m.team1, 'left')}${m.team1}</span>
       </div>
       <span class="tgm-score">
-        <span class="tgm-ft">${hasScore ? `${m.score1}:${m.score2}` : '—:—'}</span>
-        ${hasScore && m.half1 !== '' && m.half2 !== '' ? `<span class="tgm-ht">${m.half1}:${m.half2}</span>` : ''}
+        ${scoreHTML}
       </span>
       <div class="tgm-side right">
         <span class="tgm-player${w2 ? ' winner' : ''}">${m.player2}</span>
@@ -420,7 +438,10 @@ function renderGroupCard(group) {
       ? `<span class="match-status finished tg-badge">Finished</span>`
       : `<span class="tg-badge tg-badge--empty"></span>`;
 
-  return `<div class="league-block">
+  const blockClass = status === 'live' ? ' league-block--live'
+                   : status === ''    ? ' league-block--upcoming'
+                   : '';
+  return `<div class="league-block${blockClass}">
     <div class="league-block-header">
       <div class="league-block-name">${label}</div>
       ${badgeHTML}
@@ -491,10 +512,80 @@ function renderLeagues() {
       }
     }
 
-    container.innerHTML =
-      `<div class="league-day-header">${date}</div>` +
-      `<div class="tournament-groups-grid">${groups.map(g => renderGroupCard(g)).join('')}</div>` +
-      `<div class="pagination" style="margin-top:2.5rem">${pageBtns.join('')}</div>`;
+    // Split groups by status
+    const liveGroups     = groups.filter(g => groupStatus(g.matches) === 'live');
+    const finishedGroups = groups.filter(g => groupStatus(g.matches) === 'finished');
+    const upcomingGroups = groups.filter(g => groupStatus(g.matches) === '');
+
+    let html = `<div class="league-day-header">${date}</div>`;
+
+    if (liveGroups.length) {
+      html += `<div class="groups-section-label groups-label--live"><span class="status-dot"></span>In Progress</div>`;
+      html += liveGroups.map(g => {
+        // Find matches that are "live" (have HT but no final score)
+        const liveMatches = g.matches.filter(m =>
+          m.half1 !== '' && m.half2 !== '' && !isNaN(+m.half1) && !isNaN(+m.half2) &&
+          (m.score1 === '' || m.score2 === '' || isNaN(+m.score1) || isNaN(+m.score2))
+        );
+        // If no live matches, fall back to all unfinished
+        const spotlight = liveMatches.length ? liveMatches
+          : g.matches.filter(m => m.score1 === '' || isNaN(+m.score1));
+
+        function spPlayerCard(name, team) {
+          const code = FLAG_CODES[(team || '').toLowerCase()];
+          const flagUrl = code ? `https://flagcdn.com/w80/${code}.png` : null;
+          const photoSrc = `../assets/players/${name}.png`;
+          const initials = name.replace(/[^A-Za-z0-9]/g,' ').trim()
+            .split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || name.slice(0,2).toUpperCase();
+          let h = 0;
+          for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+          const avatarColor = `oklch(0.58 0.2 ${Math.abs(h) % 360})`;
+          return `<div class="sp-pcard">
+            <div class="sp-photo-wrap" style="--sp-color:${avatarColor}">
+              <img class="sp-photo" src="${photoSrc}" alt="${name}"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div class="sp-avatar" style="background:${avatarColor};display:none">${initials}</div>
+              ${flagUrl ? `<img class="sp-flag-overlay" src="${flagUrl}" alt="${team}">` : ''}
+            </div>
+            <span class="sp-pname">${name}</span>
+          </div>`;
+        }
+
+        const spotlightBlocks = spotlight.map(m => {
+          const hasHT = m.half1 !== '' && !isNaN(+m.half1);
+          return `<div class="live-spotlight">
+            <div class="sp-title">Now Playing</div>
+            <div class="sp-match">
+              ${spPlayerCard(m.player1, m.team1)}
+              <div class="sp-vs">
+                <span class="sp-time">${m.time}</span>
+                <span class="sp-vs-text">VS</span>
+              </div>
+              ${spPlayerCard(m.player2, m.team2)}
+            </div>
+            ${hasHT ? `<div class="sp-score-row"><span class="sp-ht">HT ${m.half1} : ${m.half2}</span></div>` : ''}
+          </div>`;
+        }).join('');
+
+        return `<div class="live-group-row">
+          <div class="live-group-card">${renderGroupCard(g)}</div>
+          <div class="live-spotlights">${spotlightBlocks}</div>
+        </div>`;
+      }).join('');
+    }
+
+    if (finishedGroups.length) {
+      html += `<div class="groups-section-label groups-label--finished">Finished</div>`;
+      html += `<div class="tournament-groups-grid">${finishedGroups.map(g => renderGroupCard(g)).join('')}</div>`;
+    }
+
+    if (upcomingGroups.length) {
+      html += `<div class="groups-section-label groups-label--upcoming">Upcoming</div>`;
+      html += `<div class="tournament-groups-grid groups-grid--upcoming">${upcomingGroups.map(g => renderGroupCard(g)).join('')}</div>`;
+    }
+
+    html += `<div class="pagination" style="margin-top:2.5rem">${pageBtns.join('')}</div>`;
+    container.innerHTML = html;
   });
 }
 
