@@ -618,10 +618,13 @@ function leagueBlockHTML(tournament, data) {
 
 // renderLeagues and leagueGoDay are defined in tournament.js (loaded after this file)
 
-let activeView = 'leagues';
+// Read initial view from URL hash
+let activeView = (location.hash === '#bracket') ? 'results' : 'leagues';
 
 function switchView(view) {
   activeView = view;
+  // Save to URL hash so refresh restores the same tab
+  location.hash = (view === 'results') ? 'bracket' : 'group';
   document.querySelectorAll('.view-tab').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   const showResults = view === 'results';
   document.getElementById('resultsSection').style.display = showResults ? '' : 'none';

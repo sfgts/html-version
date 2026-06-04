@@ -331,7 +331,7 @@ function parseGridSheet(rows) {
     });
   }
 
-  if (current && current.matches.length) sections.push(current);
+  if (current) sections.push(current);
   return sections;
 }
 
@@ -602,11 +602,17 @@ async function initTournament(sources) {
 
   try {
     const sep = sources.tournamentIndex.includes('?') ? '&' : '?';
-    const csvText = await fetch(sources.tournamentIndex + sep + '_=' + Date.now())
-      .then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
-      });
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Timeout')), 12000)
+    );
+    const csvText = await Promise.race([
+      fetch(sources.tournamentIndex + sep + '_=' + Date.now())
+        .then(r => {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.text();
+        }),
+      timeout,
+    ]);
 
     // parseCSV is defined in players.js (loaded before this file)
     const rows    = parseCSV(csvText);
@@ -638,10 +644,15 @@ async function initTournament(sources) {
     if (typeof activeView !== 'undefined' && activeView === 'leagues') {
       renderLeagues();
     } else if (typeof activeView !== 'undefined' && activeView === 'results') {
-      renderBracket();
+      render();
     }
   } catch (err) {
     console.warn('[tournament] init failed:', err.message);
+    const container = document.getElementById('leaguesContainer');
+    const grid = document.getElementById('resultsGrid');
+    const msg = '<div class="error-state">Could not load tournament data. Please refresh.</div>';
+    if (container && !container.querySelector('.league-block')) container.innerHTML = msg;
+    if (grid && activeView === 'results' && !grid.querySelector('.bracket-view')) grid.innerHTML = msg;
   }
 }
 
@@ -682,19 +693,34 @@ function bracketCard(m) {
 }
 
 // ── Build bracket: sections left-to-right, connected by a single line ─────────
-const ROUND_LABELS = { '1/16':'Round of 16','1/8':'Quarter-finals','1/4':'Semi-finals','1/2':'Semi-finals','final':'Final' };
+const ROUND_LABELS = { '1/16':'Round of 16','1/8':'Round of 8','1/4':'Quarter-finals','1/2':'Semi-finals','final':'Final' };
 const ROUND_ORDER  = ['1/16','1/8','1/4','1/2','final'];
+// Expected match count per round (used to fill TBD placeholders)
+const ROUND_COUNTS = { '1/16': 16, '1/8': 8, '1/4': 4, '1/2': 2, 'final': 1 };
+
+function tbdMatch() {
+  return { time: '', team1: 'TBD', team2: 'TBD', player1: '', player2: '', score1: '', score2: '', half1: '', half2: '' };
+}
 
 function buildBracketGrid(sections) {
-  const ordered = ROUND_ORDER.map(k => sections.find(s => s.key === k)).filter(Boolean);
-  if (!ordered.length) return '<div class="error-state">No bracket data.</div>';
+  // Find first round that has actual data to determine if we have anything to show
+  const hasAny = ROUND_ORDER.some(k => sections.find(s => s.key === k));
+  if (!hasAny) return '<div class="error-state">No bracket data.</div>';
 
-  const cols = ordered.map((section, i) => {
-    const matchesHTML = section.matches.map(m => bracketCard(m)).join('');
+  const cols = ROUND_ORDER.map((k, i) => {
+    const section = sections.find(s => s.key === k);
+    // How many matches this round should have
+    const expected = ROUND_COUNTS[k] || 1;
+    let matches = section ? [...section.matches] : [];
+    // Pad with TBD cards up to expected count
+    while (matches.length < expected) matches.push(tbdMatch());
+
+    const matchesHTML = matches.map(m => bracketCard(m)).join('');
+    const sep = i < ROUND_ORDER.length - 1 ? '<div class="bcol-sep"></div>' : '';
     return `<div class="bcol">
-      <div class="bcol-label">${ROUND_LABELS[section.key] || section.raw}</div>
+      <div class="bcol-label">${ROUND_LABELS[k]}</div>
       <div class="bcol-matches">${matchesHTML}</div>
-    </div>${i < ordered.length - 1 ? '<div class="bcol-sep"></div>' : ''}`;
+    </div>${sep}`;
   }).join('');
 
   return `<div class="bracket-track">${cols}</div>`;

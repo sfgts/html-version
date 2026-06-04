@@ -437,6 +437,13 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 .loading-dot:nth-child(2) { animation-delay: 0.2s; }
 .loading-dot:nth-child(3) { animation-delay: 0.4s; }
 
+/* Guarantee bracket always spans full grid width (fallback if :has() misses) */
+.results-grid-inner > .league-day-header,
+.results-grid-inner > .bracket-view,
+.results-grid-inner > .pagination {
+  grid-column: 1 / -1;
+}
+
 /* ── Bracket (GRID sheet) ───────────────────────────────────────────────────── */
 .bracket-view {
   padding: 1rem 0;
@@ -873,8 +880,189 @@ a.live-spotlight { text-decoration: none; color: inherit; }
   flex-shrink: 0;
   display: block;
 }
+/* ── Mobile (≤767px) ── */
+@media (max-width: 767px) {
+  .results-hero { padding: 1.25rem 1rem 1.5rem; }
+  .view-tabs { flex-wrap: wrap; gap: 0.4rem; }
+  .ar-group { margin-left: 0; padding-left: 0; border-left: none; width: 100%; padding-top: 0.35rem; border-top: 1px solid var(--border); }
+  .leagues-section { padding: 0 0.75rem; }
+  .tournament-groups-grid { grid-template-columns: 1fr !important; }
+  .player-name-cell { display: none; }
+  .goals-cell { display: none; }
+  .live-group-row { flex-direction: column; }
+  .live-group-card { flex: none; width: 100%; }
+  .live-spotlights { flex-direction: column; }
+  .live-spotlight { width: 100% !important; }
+  .bracket-view { padding: 0.5rem; overflow-x: auto; justify-content: flex-start; }
+  .bracket-track { width: max-content; }
+  .bcol { flex: 0 0 140px; }
+  .players-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem; }
+  .pc-photo-wrap { height: 180px; }
+  .results-section { padding: 0 0.75rem 3rem; }
+  .results-grid-inner { grid-template-columns: 1fr !important; }
+  .results-grid-inner:has(.bracket-view) { padding: 0; }
+  .page-btn { padding: 0.3rem 0.5rem; font-size: 0.72rem; min-width: 2rem; }
+}
+@media (max-width: 480px) {
+  .players-grid { grid-template-columns: 1fr !important; }
+  .view-tab { padding: 0.4rem 0.9rem; font-size: 0.7rem; }
+}
+
 .tg-placeholder {
   padding: 0.75rem 1rem;
   font-size: 0.8rem;
   color: var(--muted-foreground);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE STYLES (≤ 767px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* ── Results hero ── */
+  .results-hero { padding: 1.25rem 1rem 1.5rem; }
+  .results-hero h1 { font-size: clamp(1.6rem, 7vw, 2.5rem); }
+  .view-tabs { flex-wrap: wrap; gap: 0.4rem; }
+  .ar-group { margin-left: 0; padding-left: 0; border-left: none; width: 100%; padding-top: 0.35rem; border-top: 1px solid var(--border); }
+
+  /* ── Group stage ── */
+  .leagues-section { padding: 0 1rem; }
+  .tournament-groups-grid { grid-template-columns: 1fr !important; }
+  .league-table th, .league-table td { padding: 0.4rem 0.35rem; font-size: 0.65rem; }
+  .player-name-cell { display: none; }
+  .goals-cell { display: none; }
+  .tgroup-match { flex-wrap: wrap; gap: 0.25rem; padding: 0.5rem 0.6rem; }
+  .tgm-side { min-width: 0; flex: 1; }
+  .tgm-player { font-size: 0.72rem; }
+  .tgm-team { font-size: 0.6rem; }
+
+  /* ── Live section ── */
+  .live-group-row { flex-direction: column; }
+  .live-group-card { flex: none; width: 100%; }
+  .live-spotlights { flex-direction: column; }
+  .live-spotlight { width: 100% !important; }
+  .sp-photo-wrap { aspect-ratio: 4/3; }
+
+  /* ── Bracket ── */
+  .bracket-track { width: calc(100vw - 2rem); overflow-x: auto; }
+  .bcol { flex: 0 0 160px; }
+  .bcard-team { font-size: 0.62rem; }
+  .bcard-score { font-size: 0.75rem; }
+  .bracket-view { padding: 0.75rem 1rem; }
+
+  /* ── Player cards ── */
+  .players-hero { padding: 1.25rem 1rem 1.5rem; }
+  .players-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem; }
+  .pc-photo-wrap { height: 180px; }
+  .pc-wdl-val { font-size: 0.85rem; }
+  .pc-goals-val { font-size: 0.72rem; }
+
+  /* ── Match cards ── */
+  .results-section { padding: 0 1rem 3rem; }
+  .results-grid-inner { grid-template-columns: 1fr !important; }
+
+  /* ── Pagination ── */
+  .pagination { gap: 0.25rem; }
+  .page-btn { padding: 0.3rem 0.5rem; font-size: 0.72rem; min-width: 2rem; }
+
+  /* ── Section labels ── */
+  .groups-section-label { margin: 1rem 0 0.5rem; }
+
+  /* ── League block ── */
+  .league-block-header { padding: 0.65rem 0.9rem; }
+  .league-block-name { font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  .players-grid { grid-template-columns: 1fr !important; }
+  .results-hero h1 { font-size: 1.6rem; }
+  .view-tab { padding: 0.4rem 0.9rem; font-size: 0.7rem; }
+}
+}
+
+/* Photo */
+.sp-photo-wrap {
+  position: relative; width: 100%; aspect-ratio: 3/4;
+  border-radius: 0.5rem; overflow: hidden;
+  background: oklch(0.14 0.03 240);
+}
+.sp-photo-wrap::before {
+  content:''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 100%, var(--sp-color, var(--primary)) 0%, transparent 70%);
+  opacity: 0.2;
+}
+.sp-photo {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  height: 100%; width: auto; max-width: 140%;
+  object-fit: contain; object-position: bottom center;
+}
+.sp-avatar {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; font-weight: 900; color: #fff;
+}
+.sp-pname { font-size: 0.82rem; font-weight: 800; text-align: center; }
+.sp-flag-overlay {
+  position: absolute; bottom: 0.5rem; left: 50%; transform: translateX(-50%);
+  width: 88px; height: auto; border-radius: 4px;
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.5); z-index: 2;
+}
+.sp-vs {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.3rem; flex-shrink: 0; padding: 0 0.25rem;
+}
+.sp-vs-text { font-size: 1rem; font-weight: 900; color: var(--muted-foreground); }
+.sp-time { font-size: 0.6rem; color: var(--muted-foreground); }
+.sp-score-row {
+  display: flex; justify-content: center; align-items: center;
+  padding-top: 0.5rem; margin-top: 0.25rem;
+  border-top: 1px solid var(--border); text-align: center;
+}
+.sp-ht { font-size: 0.95rem; font-weight: 900; color: oklch(0.78 0.18 60); letter-spacing: 0.05em; }
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE STYLES (≤ 767px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .results-hero { padding: 1.25rem 1rem 1.5rem; }
+  .results-hero h1 { font-size: clamp(1.6rem, 7vw, 2.5rem); }
+  .view-tabs { flex-wrap: wrap; gap: 0.4rem; }
+  .ar-group { margin-left: 0; padding-left: 0; border-left: none; width: 100%; padding-top: 0.35rem; border-top: 1px solid var(--border); }
+
+  .leagues-section { padding: 0 0.75rem; }
+  .tournament-groups-grid { grid-template-columns: 1fr !important; }
+  .league-table th, .league-table td { padding: 0.4rem 0.35rem; font-size: 0.65rem; }
+  .player-name-cell { display: none; }
+  .goals-cell { display: none; }
+  .tgroup-match { flex-wrap: wrap; gap: 0.25rem; padding: 0.5rem 0.6rem; }
+
+  .live-group-row { flex-direction: column; }
+  .live-group-card { flex: none; width: 100%; }
+  .live-spotlights { flex-direction: column; }
+  .live-spotlight { width: 100% !important; }
+  .sp-photo-wrap { aspect-ratio: 4/3; }
+
+  .bracket-view { padding: 0.5rem; overflow-x: auto; justify-content: flex-start; }
+  .bracket-track { width: max-content; min-width: 100%; }
+  .bcol { flex: 0 0 140px; }
+
+  .players-hero { padding: 1.25rem 1rem 1.5rem; }
+  .players-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem; }
+  .pc-photo-wrap { height: 180px; }
+
+  .results-section { padding: 0 0.75rem 3rem; }
+  .results-grid-inner { grid-template-columns: 1fr !important; }
+
+  .pagination { gap: 0.25rem; }
+  .page-btn { padding: 0.3rem 0.5rem; font-size: 0.72rem; min-width: 2rem; }
+
+  .league-block-header { padding: 0.65rem 0.9rem; }
+  .league-block-name { font-size: 0.85rem; }
+
+  .results-grid-inner:has(.bracket-view) { padding: 0; }
+}
+
+@media (max-width: 480px) {
+  .players-grid { grid-template-columns: 1fr !important; }
+  .view-tab { padding: 0.4rem 0.9rem; font-size: 0.7rem; }
 }
