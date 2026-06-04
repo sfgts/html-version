@@ -561,7 +561,9 @@ function bracketCard(m) {
   const s1 = +m.score1, s2 = +m.score2;
   const w1 = hasScore && s1 > s2, w2 = hasScore && s2 > s1;
 
-  const teamRow = (team, player, score, win) => {
+  const hasHT = hasScore && m.half1 !== '' && m.half2 !== '' && !isNaN(+m.half1) && !isNaN(+m.half2);
+
+  const teamRow = (team, player, score, win, ht) => {
     const isTBD = !team || team.toUpperCase() === 'TBD';
     const code  = !isTBD ? FLAG_CODES[team.toLowerCase()] : null;
     const flagEl = code
@@ -573,18 +575,18 @@ function bracketCard(m) {
         <span class="bcard-team${isTBD ? ' tbd' : ''}">${isTBD ? 'TBD' : team}</span>
         ${player && !isTBD ? `<span class="bcard-player">${player}</span>` : ''}
       </div>
-      <span class="bcard-score">${hasScore ? score : ''}</span>
+      <div class="bcard-score-wrap">
+        ${hasHT ? `<span class="bcard-ht-score">${ht}</span>` : ''}
+        <span class="bcard-score">${hasScore ? score : ''}</span>
+      </div>
     </div>`;
   };
 
-  const htHTML = hasScore && m.half1 !== '' && m.half2 !== ''
-    ? `<div class="bcard-ht">${m.half1}:${m.half2}</div>` : '';
-
   return `<div class="bcard">
     ${m.time ? `<div class="bcard-time">${m.time}</div>` : ''}
-    ${teamRow(m.team1, m.player1, m.score1, w1)}
-    <div class="bcard-divider">${htHTML}</div>
-    ${teamRow(m.team2, m.player2, m.score2, w2)}
+    ${teamRow(m.team1, m.player1, m.score1, w1, m.half1)}
+    <div class="bcard-divider"></div>
+    ${teamRow(m.team2, m.player2, m.score2, w2, m.half2)}
   </div>`;
 }
 
@@ -625,8 +627,9 @@ function render() {
   const dots = '<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>';
   if (grid) grid.innerHTML = `<div class="loading-state">${dots}</div>`;
 
-  const safeIdx = Math.min(tournamentDayIdx, tournamentDays.length - 1);
-  const { id }  = tournamentDays[safeIdx];
+  const safeIdx      = Math.min(tournamentDayIdx, tournamentDays.length - 1);
+  const { id, date } = tournamentDays[safeIdx];
+  const total        = tournamentDays.length;
 
   fetchGviz(id, 'GRID').then(rows => {
     const sections = parseGridSheet(rows);
@@ -634,9 +637,35 @@ function render() {
       grid.innerHTML = '<div class="error-state">No bracket data for this day.</div>';
       return;
     }
-    grid.innerHTML = `<div class="bracket-view">${buildBracketGrid(sections)}</div>`;
+
+    // Build pagination (same style as Group Stage)
+    const curPage = safeIdx + 1;
+    const WING = 2;
+    const pageBtns = [];
+    let prev = 0;
+    for (let p = 1; p <= total; p++) {
+      if (p === 1 || p === total || (p >= curPage - WING && p <= curPage + WING)) {
+        if (p - prev > 1) pageBtns.push('<span class="page-ellipsis">…</span>');
+        pageBtns.push(
+          `<button class="page-btn${p === curPage ? ' active' : ''}" onclick="bracketGoDay(${p - 1})">${p}</button>`
+        );
+        prev = p;
+      }
+    }
+
+    grid.innerHTML =
+      `<div class="league-day-header">${date}</div>` +
+      `<div class="bracket-view">${buildBracketGrid(sections)}</div>` +
+      (total > 1 ? `<div class="pagination" style="margin-top:2rem">${pageBtns.join('')}</div>` : '');
   }).catch(err => {
     console.warn('[bracket] fetch failed:', err);
     grid.innerHTML = '<div class="error-state">Could not load bracket.</div>';
   });
 }
+
+window.bracketGoDay = function(idx) {
+  tournamentDayIdx = idx;
+  render();
+  const sec = document.getElementById('resultsSection');
+  if (sec) window.scrollTo({ top: sec.offsetTop - 80, behavior: 'smooth' });
+};

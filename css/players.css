@@ -23,8 +23,19 @@
 .leagues-section { padding-bottom: 5rem; max-width: none !important; padding-left: 1cm; padding-right: 1cm; }
 
 .league-day-header {
-  font-size: 0.72rem; font-weight: 700; color: var(--muted-foreground);
-  margin-bottom: 1rem; letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: oklch(0.82 0.22 145 / 0.08);
+  border: 1px solid oklch(0.82 0.22 145 / 0.35);
+  border-radius: 9999px;
+  padding: 0.3rem 0.9rem;
+  margin-bottom: 1.25rem;
 }
 
 .leagues-section-label {
@@ -167,6 +178,10 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
+}
+.results-grid-inner:has(.bracket-view) {
+  display: block;
+  padding: 0 1.5rem;
 }
 @media (max-width: 1200px) { .results-grid-inner { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 860px)  { .results-grid-inner { grid-template-columns: repeat(2, 1fr); } }
@@ -393,14 +408,16 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 
 /* ── Bracket (GRID sheet) ───────────────────────────────────────────────────── */
 .bracket-view {
-  padding: 1cm;
+  padding: 1rem 0;
+  display: flex;
+  justify-content: center;
 }
 
 /* Horizontal track: rounds left-to-right */
 .bracket-track {
   display: flex;
-  align-items: stretch;
-  width: 100%;
+  align-items: flex-start;
+  width: calc(100vw - 4cm);
 }
 
 /* Each round column — fixed equal width */
@@ -408,7 +425,7 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   display: flex;
   flex-direction: column;
   flex: 1 0 0%;
-  width: 0; /* forces equal distribution via flex-grow */
+  width: 0;
 }
 .bcol-label {
   font-size: 0.6rem;
@@ -422,7 +439,6 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  flex: 1;
 }
 
 /* Connecting line between rounds */
@@ -444,7 +460,7 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 /* ── Match card (bcard) ── */
 .bcard {
   width: 100%;
-  height: 100%;
+  height: auto;
   background: oklch(0.16 0.04 160 / 0.85);
   border: 1px solid var(--border);
   border-radius: 0.6rem;
@@ -519,13 +535,25 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   font-size: 0.62rem;
   color: var(--muted-foreground);
 }
+.bcard-score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+.bcard-ht-score {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  min-width: 0.8rem;
+  text-align: right;
+}
 .bcard-score {
   font-size: 0.95rem;
   font-weight: 900;
   min-width: 1.2rem;
   text-align: right;
   color: var(--foreground);
-  flex-shrink: 0;
 }
 .bcard-row.win .bcard-score { color: var(--primary); }
 

@@ -81,11 +81,10 @@
       background: radial-gradient(ellipse 80% 60% at 50% 100%, var(--pc-color, var(--primary)) 0%, transparent 70%);
       opacity: 0.18; pointer-events: none;
     }
-    /* Gradient at top so name text is readable when overlaid */
     .pc-photo-wrap::after {
       content: '';
-      position: absolute; inset: 0 0 auto 0; height: 80px;
-      background: linear-gradient(to bottom, oklch(0 0 0 / 0.55), transparent);
+      position: absolute; inset: auto 0 0 0; height: 120px;
+      background: linear-gradient(to top, oklch(0.25 0.08 145 / 0.35), transparent);
       pointer-events: none;
     }
 
@@ -115,13 +114,18 @@
       border-radius: 9999px; z-index: 2;
     }
 
-    /* Name overlaid top-right */
+    /* Nickname in stats block */
     .pc-name-overlay {
-      position: absolute; top: 0.65rem; right: 0.7rem; left: 2.5rem;
-      text-align: right; z-index: 2;
-      font-size: 0.82rem; font-weight: 800; color: #fff;
-      text-shadow: 0 1px 6px oklch(0 0 0 / 0.7);
-      line-height: 1.2; word-break: break-word;
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--primary);
+      background: oklch(0.82 0.22 145 / 0.12);
+      border: 1px solid oklch(0.82 0.22 145 / 0.4);
+      border-radius: 9999px;
+      padding: 0.22rem 0.7rem;
+      line-height: 1.3;
     }
 
     /* ── Stats area ── */

@@ -1,6 +1,7 @@
-const SOURCES_URL      = '../assets/sources.json';
-const ROSTER_CACHE_KEY = 'esb_roster_v1';
-const CACHE_KEY        = 'esb_matches_v7';
+const SOURCES_URL           = '../assets/sources.json';
+const ROSTER_CACHE_KEY      = 'esb_roster_v1';
+const CACHE_KEY             = 'esb_matches_v7';
+const TOURNAMENT_CACHE_KEY  = 'esb_tournament_matches_v1';
 
 /* ── CSV parsing ── */
 function parseCSV(text) {
@@ -310,13 +311,13 @@ function renderCard(name, s, rank) {
     <div class="player-card" data-player="${name}" style="--pc-color:${color}">
       <div class="pc-photo-wrap">
         ${rankBadge}
-        <div class="pc-name-overlay">${name}</div>
         <img class="pc-photo" src="${photoSrc}" alt="${name}"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="pc-avatar" style="background:${color}; display:none">${initials}</div>
       </div>
 
       <div class="pc-stats">
+        <div class="pc-name-overlay">${name}</div>
         <div class="pc-winrate-wrap">
           <div class="pc-winrate-label">
             <span>${s.matches} matches</span>
@@ -663,27 +664,203 @@ function buildPlayersFromRoster(rosterNames) {
   allPlayers = rosterNames.map(name => ({ name, stats: calcPlayerStats(name) }));
 }
 
+/* ── Tournament Index loader (used when sources.months is empty) ── */
+async function fetchGviz(spreadsheetId, sheetName) {
+  const url =
+    `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq` +
+    `?tqx=out:json&headers=0&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+  const text = await fetch(url).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.text();
+  });
+  const start = text.indexOf('{'), end = text.lastIndexOf('}');
+  if (start < 0 || end < 0) return [];
+  const data = JSON.parse(text.slice(start, end + 1));
+  if (!data.table) return [];
+  return data.table.rows.map(row =>
+    (row.c || []).map(cell => {
+      if (!cell || cell.v === null || cell.v === undefined) return '';
+      const val = (cell.f !== null && cell.f !== undefined) ? cell.f : cell.v;
+      return String(val).trim();
+    })
+  );
+}
+
+function extractSheetId(url) {
+  const m = String(url).match(/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+// Parse matches from a group sheet rows
+function parseGroupMatches(rows, date, groupName) {
+  const norm = s => String(s).toLowerCase().replace(/[\s_-]+/g, '').trim();
+  let mHdrIdx = -1, p1Col = -1, p2Col = -1, t1Col = -1, t2Col = -1;
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const p1 = row.findIndex(c => norm(c) === 'player1');
+    const t1 = row.findIndex(c => norm(c) === 'team1');
+    if (p1 >= 0 && t1 >= 0) {
+      mHdrIdx = i; p1Col = p1; t1Col = t1;
+      p2Col = row.findIndex(c => norm(c) === 'player2');
+      t2Col = row.findIndex(c => norm(c) === 'team2');
+      break;
+    }
+  }
+  // hardcoded fallback
+  if (mHdrIdx < 0 && rows.length > 11) {
+    mHdrIdx = 10; p1Col = 2; p2Col = 3; t1Col = 4; t2Col = 5;
+  }
+  if (mHdrIdx < 0) return [];
+
+  const matches = [];
+  for (let i = mHdrIdx + 1; i < rows.length; i++) {
+    const row = rows[i];
+    const p1 = (row[p1Col] || '').trim();
+    const p2 = p2Col >= 0 ? (row[p2Col] || '').trim() : '';
+    if (!p1 && !p2) continue;
+    matches.push({
+      date,
+      tournament: groupName.replace('Group', 'Group '),
+      time:    (row[1] || '').trim(),
+      player1: p1,
+      player2: p2,
+      team1:   t1Col >= 0 ? (row[t1Col] || '').trim() : '',
+      team2:   t2Col >= 0 ? (row[t2Col] || '').trim() : '',
+      score1:  String(row[6] ?? '').trim(),
+      score2:  String(row[8] ?? '').trim(),
+      half1:   String(row[9] ?? '').trim(),
+      half2:   String(row[11] ?? '').trim(),
+    });
+  }
+  return matches;
+}
+
+const TOURNAMENT_GROUPS = ['GroupA','GroupB','GroupC','GroupD','GroupE','GroupF',
+                           'GroupG','GroupH','GroupI','GroupJ','GroupK','GroupL'];
+
+// Parse matches from GRID (bracket) sheet
+function parseGridMatches(rows, date) {
+  const norm = s => String(s).toLowerCase().replace(/[\s_-]+/g, '').trim();
+  const BRACKET_ROUNDS = ['1/16','1/8','1/4','1/2','final'];
+  const ROUND_LABELS   = { '1/16':'Round of 16','1/8':'Quarter-finals','1/4':'Semi-finals','1/2':'Semi-finals','final':'Final' };
+
+  const matches = [];
+  let currentRound = null;
+  let inData = false;
+
+  for (const row of rows) {
+    const c2  = (row[2] || '').trim();
+    const key = c2.toLowerCase();
+
+    if (BRACKET_ROUNDS.includes(key)) {
+      currentRound = ROUND_LABELS[key] || c2;
+      inData = false;
+      continue;
+    }
+    if (!currentRound) continue;
+    if (key === 'team1') { inData = true; continue; }
+    if (!inData) continue;
+
+    const time   = (row[1] || '').trim();
+    const team1  = c2;
+    const score1 = String(row[8] ?? '').trim();
+    const score2 = String(row[9] ?? '').trim();
+    const player1 = (row[4] || '').trim();
+    const player2 = (row[5] || '').trim();
+
+    if (!team1 && !time) continue;
+    if (!player1 && !player2) continue;
+    if (score1 === '' || score2 === '' || isNaN(+score1) || isNaN(+score2)) continue;
+
+    matches.push({
+      date,
+      tournament: currentRound,
+      time,
+      team1,
+      team2:   (row[3] || '').trim(),
+      player1,
+      player2,
+      score1,
+      score2,
+      half1: String(row[6] ?? '').trim(),
+      half2: String(row[7] ?? '').trim(),
+    });
+  }
+  return matches;
+}
+
+async function loadMatchesFromTournamentIndex(indexUrl) {
+  const sep = indexUrl.includes('?') ? '&' : '?';
+  const csvText = await fetch(indexUrl + sep + '_=' + Date.now()).then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.text();
+  });
+
+  const rows = parseCSV(csvText);
+  const entries = [];
+  for (const row of rows) {
+    const date = (row[1] || '').trim();
+    const url  = (row[2] || '').trim();
+    if (!date || !url || !/^\d{2}\.\d{2}\.\d{4}$/.test(date)) continue;
+    const id = extractSheetId(url);
+    if (id) entries.push({ date, id });
+  }
+  if (!entries.length) return [];
+
+  const allMatchesFromSheets = [];
+  await Promise.allSettled(
+    entries.map(async ({ date, id }) => {
+      // Load group stage sheets + bracket (GRID) in parallel
+      const [groupResults, gridRows] = await Promise.all([
+        Promise.allSettled(
+          TOURNAMENT_GROUPS.map(g => fetchGviz(id, g).then(rows => parseGroupMatches(rows, date, g)))
+        ),
+        fetchGviz(id, 'GRID').catch(() => []),
+      ]);
+      for (const r of groupResults) {
+        if (r.status === 'fulfilled') allMatchesFromSheets.push(...r.value);
+      }
+      if (gridRows.length) {
+        allMatchesFromSheets.push(...parseGridMatches(gridRows, date));
+      }
+    })
+  );
+  return allMatchesFromSheets;
+}
+
 /* ── Init ── */
 async function init() {
   const grid = document.getElementById('playersGrid');
 
-  // ── 1. Show cached data instantly if available ──────────────────────────
-  let hasCached = false;
-  try {
-    const cachedMatches = localStorage.getItem(CACHE_KEY);
-    const cachedRoster  = localStorage.getItem(ROSTER_CACHE_KEY);
-    if (cachedMatches && cachedRoster) {
-      applyFromCache(JSON.parse(cachedMatches));
-      const rosterNames = parseRoster(cachedRoster);
-      buildPlayersFromRoster(rosterNames);
-      renderGrid();
-      hasCached = true;
-    }
-  } catch (e) { /* corrupt cache */ }
+  // ── 0. Wire up all events immediately ────────────────────────────────────
+  document.getElementById('playerSearch').addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    currentPage = 1;
+    renderGrid();
+  });
+  document.getElementById('sortSelect').addEventListener('change', e => {
+    sortBy = e.target.value;
+    currentPage = 1;
+    renderGrid();
+  });
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.player-card');
+    if (!card) return;
+    if (compareMode) selectForCompare(card.dataset.player);
+    else openPlayerModal(card.dataset.player);
+  });
+  document.getElementById('modalBackdrop').addEventListener('click', closeModal);
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('compareBtn').addEventListener('click', toggleCompareMode);
+  document.getElementById('h2hBackdrop').addEventListener('click', closeH2HModal);
+  document.getElementById('h2hClose').addEventListener('click', closeH2HModal);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeH2HModal(); }
+  });
 
-  if (!hasCached) {
-    grid.innerHTML = '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
-  }
+  // ── 1. Always show loader until fresh data is ready ──────────────────────
+  grid.innerHTML = '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
 
   // ── 2. Fetch sources config, then all sheets + roster in parallel ─────────
   try {
@@ -721,47 +898,43 @@ async function init() {
     });
     applyMerged(matchArrays);
 
-    // Cache merged result + roster
+    // If no flat CSV matches, load from tournament index (group stage sheets)
+    if (allMatches.length === 0 && sources.tournamentIndex) {
+      try {
+        console.log('[players] loading from tournamentIndex...');
+        const tournamentMatches = await loadMatchesFromTournamentIndex(sources.tournamentIndex);
+        console.log('[players] tournamentMatches loaded:', tournamentMatches.length);
+        if (tournamentMatches.length) {
+          const seen = new Set();
+          allMatches = tournamentMatches.filter(m => {
+            const key = `${m.date}|${m.time}|${[m.player1,m.player2].sort().join('|')}`;
+            if (seen.has(key)) return false;
+            seen.add(key); return true;
+          });
+          console.log('[players] unique matches:', allMatches.length);
+          // Cache tournament matches separately
+          try { localStorage.setItem(TOURNAMENT_CACHE_KEY, JSON.stringify(allMatches)); } catch(e) {}
+        } else {
+          console.warn('[players] no matches returned from tournament sheets');
+        }
+      } catch (e) {
+        console.warn('[tournament-index] failed:', e.message);
+      }
+    }
+
+    // Cache roster + regular matches
     try { localStorage.setItem(CACHE_KEY,        JSON.stringify(allMatches)); } catch(e) {}
     try { localStorage.setItem(ROSTER_CACHE_KEY, rosterText);                 } catch(e) {}
 
     const rosterNames = parseRoster(rosterText);
+    console.log('[players] roster:', rosterNames);
     buildPlayersFromRoster(rosterNames);
     renderGrid();
 
   } catch (err) {
-    if (!hasCached) {
-      grid.innerHTML = `<div class="players-empty">Could not load players: ${err.message}</div>`;
-      return;
-    }
-    console.warn('Background refresh failed:', err);
+    grid.innerHTML = `<div class="players-empty">Could not load players: ${err.message}</div>`;
   }
 
-  // ── 3. Wire up events (only once) ────────────────────────────────────────
-  document.getElementById('playerSearch').addEventListener('input', e => {
-    searchQuery = e.target.value.trim();
-    currentPage = 1;
-    renderGrid();
-  });
-  document.getElementById('sortSelect').addEventListener('change', e => {
-    sortBy = e.target.value;
-    currentPage = 1;
-    renderGrid();
-  });
-  document.getElementById('playersGrid').addEventListener('click', e => {
-    const card = e.target.closest('.player-card');
-    if (!card) return;
-    if (compareMode) selectForCompare(card.dataset.player);
-    else openPlayerModal(card.dataset.player);
-  });
-  document.getElementById('modalBackdrop').addEventListener('click', closeModal);
-  document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.getElementById('compareBtn').addEventListener('click', toggleCompareMode);
-  document.getElementById('h2hBackdrop').addEventListener('click', closeH2HModal);
-  document.getElementById('h2hClose').addEventListener('click', closeH2HModal);
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeModal(); closeH2HModal(); }
-  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
