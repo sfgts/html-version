@@ -43,6 +43,20 @@ function playerPhotoSrc(name) {
   return `../assets/players/${fileName}.png`;
 }
 
+function playerPlaceholderSrc() {
+  return '../assets/players/placeholder.png';
+}
+
+function playerPhotoFallback(img) {
+  if (img.dataset.fallbackApplied === '1') {
+    img.style.display = 'none';
+    if (img.nextElementSibling) img.nextElementSibling.style.display = 'flex';
+    return;
+  }
+  img.dataset.fallbackApplied = '1';
+  img.src = playerPlaceholderSrc();
+}
+
 const TOURNAMENT_GROUPS = [
   'GroupA','GroupB','GroupC','GroupD','GroupE','GroupF',
   'GroupG','GroupH','GroupI','GroupJ','GroupK','GroupL',
@@ -598,7 +612,7 @@ function renderLeagues() {
           return `<div class="sp-pcard">
             <div class="sp-photo-wrap" style="--sp-color:${avatarColor}">
               <img class="sp-photo" src="${photoSrc}" alt="${name}"
-                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                   onerror="playerPhotoFallback(this)">
               <div class="sp-avatar" style="background:${avatarColor};display:none">${initials}</div>
               ${flagUrl ? `<img class="sp-flag-overlay" src="${flagUrl}" alt="${team}">` : ''}
             </div>

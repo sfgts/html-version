@@ -91,6 +91,20 @@ function playerPhotoSrc(name) {
   return `../assets/players/${fileName}.png`;
 }
 
+function playerPlaceholderSrc() {
+  return '../assets/players/placeholder.png';
+}
+
+function playerPhotoFallback(img) {
+  if (img.dataset.fallbackApplied === '1') {
+    img.style.display = 'none';
+    if (img.nextElementSibling) img.nextElementSibling.style.display = 'flex';
+    return;
+  }
+  img.dataset.fallbackApplied = '1';
+  img.src = playerPlaceholderSrc();
+}
+
 // Tournament day starts at 07:00. Matches before 07:00 belong to the previous calendar day.
 const DAY_START_HOUR = 7;
 
@@ -252,7 +266,7 @@ function openPlayerModal(name) {
   }
   photoCol.innerHTML = `
     <img class="modal-photo-img" src="${playerPhotoSrc(name)}" alt="${name}"
-         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+         onerror="playerPhotoFallback(this)">
     <div class="modal-photo-avatar" style="background:${avatarColor};display:none">${initials}</div>
   `;
 

@@ -889,12 +889,12 @@ a.live-spotlight { text-decoration: none; color: inherit; }
 
 /* Spotlight panel */
 .live-spotlight {
-  width: 513px;
+  width: 490px;
   flex-shrink: 0;
   background: var(--card);
   border: 1px solid oklch(0.82 0.22 145 / 0.35);
   border-radius: var(--radius);
-  padding: 1rem 1.25rem;
+  padding: 0.9rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -923,7 +923,7 @@ a.live-spotlight { text-decoration: none; color: inherit; }
   display: flex;
   align-items: stretch;
   gap: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.65rem;
   background: oklch(0.82 0.22 145 / 0.04);
   border: 1px solid oklch(0.82 0.22 145 / 0.15);
   border-radius: 0.75rem;
@@ -963,7 +963,7 @@ a.live-spotlight { text-decoration: none; color: inherit; }
 .sp-flag-overlay {
   position: absolute;
   bottom: 0.5rem; left: 50%; transform: translateX(-50%);
-  width: 88px; height: auto;
+  width: 78px; height: auto;
   border-radius: 4px;
   box-shadow: 0 2px 8px oklch(0 0 0 / 0.5);
   z-index: 2;

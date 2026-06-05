@@ -100,6 +100,20 @@ function playerPhotoSrc(name) {
   return `../assets/players/${fileName}.png`;
 }
 
+function playerPlaceholderSrc() {
+  return '../assets/players/placeholder.png';
+}
+
+function playerPhotoFallback(img) {
+  if (img.dataset.fallbackApplied === '1') {
+    img.style.display = 'none';
+    if (img.nextElementSibling) img.nextElementSibling.style.display = 'flex';
+    return;
+  }
+  img.dataset.fallbackApplied = '1';
+  img.src = playerPlaceholderSrc();
+}
+
 /* ── Stats ── */
 let allMatches = [];
 
@@ -221,7 +235,7 @@ function openPlayerModal(name) {
   }
   photoCol.innerHTML = `
     <img class="modal-photo-img" src="${photoSrc}" alt="${name}"
-         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+         onerror="playerPhotoFallback(this)">
     <div class="modal-photo-avatar" style="background:${avatarColor}; display:none">${initials}</div>
   `;
 
@@ -317,7 +331,7 @@ function renderCard(name, s, rank) {
       <div class="pc-photo-wrap">
         ${rankBadge}
         <img class="pc-photo" src="${photoSrc}" alt="${name}"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+             onerror="playerPhotoFallback(this)">
         <div class="pc-avatar" style="background:${color}; display:none">${initials}</div>
       </div>
 
@@ -449,7 +463,7 @@ function openH2HModal(nameA, nameB) {
       <div class="h2h-player">
         <div class="h2h-photo-wrap" style="--pc-color:${color}">
           <img class="h2h-photo-img" src="${src}" alt="${name}"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+               onerror="playerPhotoFallback(this)">
           <div class="h2h-photo-avatar" style="background:${color};display:none">${ini(name)}</div>
         </div>
         <div class="h2h-player-name">${name}</div>
