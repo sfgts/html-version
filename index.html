@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ESportsBattle World Cup Championship 2026</title>
-  <meta name="description" content="Discover the FIFA World Cup 2026: 48 nations, 16 host cities across three countries, and one month of unforgettable football." />
+  <meta name="description" content="ESportsBattle produces and delivers World Cup esports coverage: live results, group standings, brackets, players and tournament updates." />
   <link rel="icon" type="image/svg+xml" href="assets/favico.ico" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -14,22 +14,22 @@
 
   <header>
     <div class="header-inner">
-      <a href="#top" class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+      <a href="#top" class="logo">
         <img src="assets/logo.svg" alt="Sportsbattle" />
       </a>
 
       <nav>
         <a href="html/teams.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
           TEAMS
         </a>
         <a href="html/players-list.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           PLAYERS
         </a>
         <div class="nav-dropdown">
           <span class="nav-dropdown-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+            <svg class="results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><rect x="7" y="11" width="3" height="5" rx="1"/><rect x="12" y="7" width="3" height="9" rx="1"/><rect x="17" y="9" width="3" height="7" rx="1"/></svg>
             RESULTS
             <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
@@ -38,6 +38,10 @@
             <a href="html/results.html#bracket">Bracket</a>
           </div>
         </div>
+        <a href="html/rules.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+          RULES
+        </a>
         <a href="html/terms.html">TERMS AND CONDITIONS</a>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -79,11 +83,10 @@
         <span class="badge-dot"></span>
         <span id="badge-text">June 11 — July 19, 2026</span>
       </div>
-      <h1 id="hero-title">The greatest <span>football</span> tournament on Earth.</h1>
+      <h1 id="hero-title">We bring the <span>World Cup</span> esports story to life.</h1>
       <p id="hero-desc">
-        48 nations. 16 host cities across three countries. One trophy.
-        Welcome to the FIFA World Cup 2026 — the biggest, boldest and most
-        united edition in the history of the game.
+        We are ESportsBattle: the team creating, producing and delivering this tournament hub with live results,
+        group standings, bracket updates, player stats and match coverage in one place.
       </p>
     </div>
   </section>
@@ -93,7 +96,7 @@
       <video autoplay muted loop controls playsinline>
         <source src="assets/promo.mp4" type="video/mp4">
       </video>
-      <div class="video-placeholder" style="display:none">
+      <div class="video-placeholder is-hidden">
         <div class="video-play-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <polygon points="5 3 19 12 5 21 5 3"/>
@@ -106,15 +109,13 @@
 
   <section class="about container">
     <div class="about-grid">
-      <div class="card">
-        <h2 id="who-title">Who we are</h2>
-        <p id="who-p1">We are an independent fan platform dedicated to the FIFA World Cup. Our mission is simple: bring supporters closer to the game with clean information, beautiful design and a single place to follow every nation chasing the trophy.</p>
-        <p id="who-p2">No noise. No clutter. Just football.</p>
-      </div>
-      <div class="card">
-        <h2 id="about-title">About the tournament</h2>
-        <p id="about-p1">The 2026 edition is the first World Cup hosted by three nations — Canada, Mexico and the United States — and the first to feature 48 teams. Across 39 days and 104 matches, the world's best players will compete for the most coveted trophy in sport.</p>
-        <p id="about-p2">Twelve groups of four open the tournament, followed by a thirty-two-team knockout stage that crowns a champion at MetLife Stadium in New York on July 19.</p>
+      <div class="card who-card">
+        <h2 id="who-title">Who We Are</h2>
+        <h3 class="who-subtitle" id="who-subtitle1">The team behind the tournament content</h3>
+        <p id="who-p1">We are the people behind this World Cup hub, bringing the tournament experience closer to fans through clear data, fast updates and polished esports coverage.</p>
+        <p id="who-p2"><strong>ESportsBattle</strong> provides the content layer around every match: results, standings, brackets, player profiles and tournament stories.</p>
+        <h3 class="who-subtitle" id="who-subtitle2">What to Expect</h3>
+        <p id="who-p3">Experience the thrill of global rivalry as elite players battle under national banners for ultimate dominance.</p>
       </div>
     </div>
   </section>
@@ -128,93 +129,18 @@
     </div>
   </section>
 
-  <section class="pillars container">
-    <h2 id="pillars-title">What makes 2026 different</h2>
-    <div class="pillars-grid">
-
-      <div class="pillar-card">
-        <div class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-        </div>
-        <h3>Three host nations</h3>
-        <p>For the first time ever, the World Cup spans Canada, Mexico and the USA — uniting an entire continent.</p>
-      </div>
-
-      <div class="pillar-card">
-        <div class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-        </div>
-        <h3>48 teams</h3>
-        <p>An expanded format gives more nations the chance to write their name into football history.</p>
-      </div>
-
-      <div class="pillar-card">
-        <div class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </div>
-        <h3>16 iconic stadiums</h3>
-        <p>From Azteca to MetLife, matches will be played in some of the most legendary venues on the planet.</p>
-      </div>
-
-      <div class="pillar-card">
-        <div class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-        </div>
-        <h3>39 days, 104 matches</h3>
-        <p>The biggest schedule ever — more games, more drama, more chances to witness history.</p>
-      </div>
-
-      <div class="pillar-card">
-        <div class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-        </div>
-        <h3>A new generation</h3>
-        <p>Today's superstars and tomorrow's prodigies share the same pitch under one summer sky.</p>
-      </div>
-
-      <div class="pillar-card">
-        <div class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-            <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-            <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
-          </svg>
-        </div>
-        <h3>One trophy</h3>
-        <p>Every story, every sprint, every save leads to one moment in New York on July 19.</p>
-      </div>
-
-    </div>
-  </section>
-
   <footer>
     <span id="footer-text">© Copyright 2026 - ESportsBattle. All rights are reserved.<br/>
-     We're using cookies and here's our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Privacy Policy</a>.<br/>
+     We're using cookies and here's our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" class="footer-link">Privacy Policy</a>.<br/>
      No part of ESportsBattle materials may be used without prior written permission by the Company and a valid link referring to the source.</span>
   </footer>
 
-  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" data-scroll-top>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="18 15 12 9 6 15"/>
     </svg>
   </button>
 
-  <script src="js/script.js"></script>
   <script src="js/nav.js"></script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                               

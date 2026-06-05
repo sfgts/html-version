@@ -1,0 +1,90 @@
+/* ── Unified filter panel ── */
+    .lf-panel {
+      max-width: 1600px; margin: 0 auto;
+      padding: 0 1.5rem 0.5rem;
+    }
+    .lf-card {
+      background: oklch(0.14 0.02 145 / 0.7);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .lf-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .lf-label {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+      min-width: 3.5rem;
+      flex-shrink: 0;
+    }
+    .lf-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+    .lf-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+    .lf-btn {
+      padding: 0.28rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .lf-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .lf-btn.active-group {
+      background: oklch(0.55 0.2 280);
+      border-color: oklch(0.55 0.2 280);
+      color: #fff;
+    }
+    .lf-btn.active-month {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000;
+      font-weight: 700;
+    }
+    .lf-btn.active-filter {
+      background: oklch(0.62 0.18 55);
+      border-color: oklch(0.62 0.18 55);
+      color: #000;
+      font-weight: 700;
+    }
+    .lf-date-input {
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--foreground);
+      font-size: 0.72rem;
+      cursor: pointer;
+      color-scheme: dark;
+    }
+    .lf-date-input:focus { outline: none; border-color: var(--primary); }
+    /* hide source row if only one source */
+    .lf-row.lf-source-row[data-count="1"],
+    .lf-row.lf-source-row[data-count="0"] { display: none; }
+    .lf-row.lf-source-row[data-count="1"] + .lf-divider { display: none; }
+
+.filter-range-row { flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.range-separator { color: var(--muted-foreground); font-size: 0.72rem; }
+.clear-filter-btn { margin-left: 0.25rem; }

@@ -8,359 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="../assets/favico.ico" />
   <link rel="stylesheet" href="../css/styles.css" />
   <link rel="stylesheet" href="../css/players.css" />
-  <style>
-    /* ── Players list page ── */
-    .players-hero { padding: 2rem 1.5rem 3rem; max-width: 1600px; margin: 0 auto; }
-    .players-hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; margin-top: 1.5rem; }
-    .players-hero h1 span { color: var(--primary); }
-    .players-hero p { margin-top: 0.75rem; font-size: 1rem; color: var(--muted-foreground); }
-
-    .players-controls {
-      max-width: 1600px; margin: 0 auto; padding: 0 1.5rem 1.5rem;
-      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
-    }
-    .players-search {
-      flex: 1; min-width: 200px; max-width: 340px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 0.55rem 1rem;
-      color: var(--foreground); font-size: 0.88rem; outline: none;
-      transition: border-color 0.2s;
-    }
-    .players-search:focus { border-color: var(--primary); }
-    .players-search::placeholder { color: var(--muted-foreground); }
-
-    .sort-select {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 0.55rem 1rem;
-      color: var(--foreground); font-size: 0.88rem; outline: none;
-      cursor: pointer; transition: border-color 0.2s;
-    }
-    .sort-select:focus { border-color: var(--primary); }
-
-    .players-count {
-      font-size: 0.78rem; color: var(--muted-foreground); margin-left: auto;
-    }
-
-    /* ── Cards grid ── */
-    .players-grid {
-      max-width: 1600px; margin: 0 auto; padding: 0 1.5rem 5rem;
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 1.25rem;
-    }
-    @media (max-width: 1200px) { .players-grid { grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 800px)  { .players-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 520px)  { .players-grid { grid-template-columns: repeat(2, 1fr); } }
-
-    /* ── Card ── */
-    .player-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-      display: flex; flex-direction: column;
-      cursor: pointer;
-      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-      position: relative;
-    }
-    .player-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px oklch(0 0 0 / 0.35);
-    }
-
-    /* Colour accent line at bottom of photo area */
-    .pc-photo-wrap {
-      position: relative;
-      width: 100%; height: 260px;
-      background: var(--pc-bg, oklch(0.14 0.03 240));
-      overflow: hidden; flex-shrink: 0;
-    }
-    /* Subtle radial glow behind the player */
-    .pc-photo-wrap::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 100%, var(--pc-color, var(--primary)) 0%, transparent 70%);
-      opacity: 0.18; pointer-events: none;
-    }
-    .pc-photo-wrap::after {
-      content: '';
-      position: absolute; inset: auto 0 0 0; height: 120px;
-      background: linear-gradient(to top, oklch(0.25 0.08 145 / 0.35), transparent);
-      pointer-events: none;
-    }
-
-    /* Player photo — stands at bottom, full height */
-    .pc-photo {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      height: 100%; width: auto; max-width: 160%;
-      object-fit: contain; object-position: bottom center;
-      user-select: none; pointer-events: none;
-    }
-
-    /* Fallback avatar (shown when no photo) */
-    .pc-avatar {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 90px; height: 90px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.8rem; font-weight: 900; color: #fff; letter-spacing: -0.02em;
-      bottom: 50%; transform: translate(-50%, 50%);
-    }
-
-    /* Rank badge (shown only when sorted by wins/winrate) */
-    .pc-rank {
-      position: absolute; top: 0.6rem; left: 0.7rem;
-      font-size: 0.62rem; font-weight: 900; letter-spacing: 0.08em;
-      background: var(--pc-color, var(--primary));
-      color: oklch(0.12 0.02 0); padding: 0.18rem 0.5rem;
-      border-radius: 9999px; z-index: 2;
-    }
-
-    /* Nickname in stats block */
-    .pc-name-overlay {
-      display: inline-block;
-      align-self: flex-start;
-      font-size: 0.72rem; font-weight: 800;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--primary);
-      background: oklch(0.82 0.22 145 / 0.12);
-      border: 1px solid oklch(0.82 0.22 145 / 0.4);
-      border-radius: 9999px;
-      padding: 0.22rem 0.7rem;
-      line-height: 1.3;
-    }
-
-    /* ── Stats area ── */
-    .pc-stats {
-      padding: 0.85rem 1rem 1rem;
-      display: flex; flex-direction: column; gap: 0.65rem;
-      border-top: 1px solid var(--border);
-    }
-
-    /* Win rate bar */
-    .pc-winrate-wrap { width: 100%; }
-    .pc-winrate-label {
-      display: flex; justify-content: space-between;
-      font-size: 0.65rem; color: var(--muted-foreground); margin-bottom: 0.28rem;
-    }
-    .pc-winrate-label strong { color: var(--primary); font-weight: 800; }
-    .pc-winrate-bar {
-      height: 4px; border-radius: 99px;
-      background: var(--border); overflow: hidden;
-    }
-    .pc-winrate-fill {
-      height: 100%; border-radius: 99px;
-      background: var(--primary);
-    }
-
-    /* W/D/L */
-    .pc-wdl { display: flex; gap: 0; }
-    .pc-wdl-item {
-      display: flex; flex-direction: column; align-items: center;
-      flex: 1; gap: 0.05rem;
-    }
-    .pc-wdl-val { font-size: 1.05rem; font-weight: 900; line-height: 1; }
-    .pc-wdl-lbl { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-foreground); }
-    .pc-wdl-item.w .pc-wdl-val { color: var(--primary); }
-    .pc-wdl-item.d .pc-wdl-val { color: oklch(0.78 0.12 60); }
-    .pc-wdl-item.l .pc-wdl-val { color: oklch(0.65 0.18 20); }
-
-    /* Goals row */
-    .pc-goals {
-      display: flex; gap: 0; width: 100%;
-      border: 1px solid var(--border); border-radius: calc(var(--radius) - 4px);
-      overflow: hidden;
-    }
-    .pc-goals-item {
-      flex: 1; padding: 0.35rem 0.4rem; text-align: center;
-      display: flex; flex-direction: column; gap: 0.05rem;
-    }
-    .pc-goals-item:not(:last-child) { border-right: 1px solid var(--border); }
-    .pc-goals-val { font-size: 0.88rem; font-weight: 800; }
-    .pc-goals-lbl { font-size: 0.58rem; color: var(--muted-foreground); letter-spacing: 0.05em; text-transform: uppercase; }
-
-    /* Tournaments */
-    .pc-tours { display: flex; flex-wrap: wrap; gap: 0.25rem; }
-
-    /* ── Compare button ── */
-    .compare-btn {
-      display: flex; align-items: center; gap: 0.45rem;
-      padding: 0.55rem 1rem; border-radius: var(--radius);
-      border: 1px solid var(--border); background: transparent;
-      color: var(--muted-foreground); font-size: 0.88rem; font-weight: 700;
-      cursor: pointer; transition: all 0.2s; white-space: nowrap;
-    }
-    .compare-btn svg { width: 1rem; height: 1rem; flex-shrink: 0; }
-    .compare-btn:hover { border-color: var(--primary); color: var(--primary); background: oklch(0.82 0.22 145 / 0.07); }
-    .compare-btn.active { border-color: var(--primary); color: var(--primary); background: oklch(0.82 0.22 145 / 0.12); }
-
-    .compare-hint {
-      display: none; align-items: center; gap: 0.4rem;
-      font-size: 0.75rem; color: var(--primary); font-weight: 700;
-      padding: 0.3rem 0.85rem; border-radius: 9999px;
-      background: oklch(0.82 0.22 145 / 0.1); border: 1px solid oklch(0.82 0.22 145 / 0.25);
-    }
-
-    /* Compare mode card states */
-    .players-grid.compare-mode .player-card { cursor: crosshair; }
-    .player-card.compare-selected {
-      border-color: var(--primary) !important;
-      box-shadow: 0 0 0 2px var(--primary), 0 12px 32px oklch(0 0 0 / 0.35) !important;
-    }
-    .player-card.compare-selected .pc-photo-wrap::before { opacity: 0.4 !important; }
-
-    /* ── H2H Modal ── */
-    .h2h-modal {
-      position: fixed; inset: 0; z-index: 1100;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.22s;
-    }
-    .h2h-modal.open { opacity: 1; pointer-events: all; }
-    .h2h-backdrop {
-      position: absolute; inset: 0;
-      background: oklch(0 0 0 / 0.7); backdrop-filter: blur(5px);
-    }
-    .h2h-card {
-      position: relative; z-index: 1;
-      background: oklch(0.2 0.04 160); border: 1px solid var(--border);
-      border-radius: calc(var(--radius) * 2);
-      width: min(960px, calc(100vw - 2rem));
-      max-height: 92vh; overflow: hidden;
-      display: flex; flex-direction: column;
-      transform: translateY(14px); transition: transform 0.22s;
-    }
-    .h2h-modal.open .h2h-card { transform: translateY(0); }
-
-    /* Two player columns + VS divider */
-    .h2h-players {
-      display: flex; align-items: stretch;
-      border-bottom: 1px solid var(--border); flex-shrink: 0;
-    }
-    .h2h-player {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 0.6rem; padding: 1.25rem 1rem 1.25rem;
-    }
-    .h2h-photo-wrap {
-      position: relative; width: 100%; height: 320px; overflow: hidden;
-      border-radius: calc(var(--radius) - 2px);
-      background: oklch(0.14 0.03 240);
-    }
-    .h2h-photo-wrap::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 100%, var(--pc-color, var(--primary)), transparent 70%);
-      opacity: 0.22; pointer-events: none;
-    }
-    .h2h-photo-img {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      height: 100%; width: auto; max-width: 200%;
-      object-fit: contain; object-position: bottom center;
-    }
-    .h2h-photo-avatar {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 60px; height: 60px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; font-weight: 900; color: #fff;
-    }
-    .h2h-player-name {
-      font-size: 0.95rem; font-weight: 900; text-align: center; line-height: 1.2;
-    }
-    .h2h-player-record { display: flex; gap: 0.35rem; align-items: center; font-size: 0.82rem; font-weight: 800; }
-    .h2h-w { color: var(--primary); }
-    .h2h-d { color: oklch(0.78 0.12 60); }
-    .h2h-l { color: oklch(0.65 0.18 20); }
-    .h2h-sep { color: var(--muted-foreground); }
-    .h2h-player-goals { font-size: 0.72rem; color: var(--muted-foreground); font-weight: 600; }
-
-    .h2h-vs-badge {
-      padding: 1rem 0.75rem; display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; font-weight: 900; color: var(--muted-foreground);
-      letter-spacing: 0.05em; flex-shrink: 0;
-    }
-
-    /* Battle bar */
-    .h2h-bar-section { padding: 1.1rem 1.5rem 0.4rem; flex-shrink: 0; }
-    .h2h-bar-labels {
-      display: flex; justify-content: space-between;
-      font-size: 0.68rem; font-weight: 700; color: var(--muted-foreground); margin-bottom: 0.4rem;
-    }
-    .h2h-bar {
-      height: 10px; border-radius: 99px; overflow: hidden;
-      display: flex; background: var(--border);
-    }
-    .h2h-bar-a { height: 100%; background: var(--primary); transition: width 0.4s; }
-    .h2h-bar-d { height: 100%; background: oklch(0.78 0.12 60); transition: width 0.4s; }
-    .h2h-bar-b { height: 100%; background: oklch(0.65 0.18 20); transition: width 0.4s; }
-    .h2h-bar-legend {
-      display: flex; justify-content: space-between;
-      font-size: 0.68rem; font-weight: 700; margin-top: 0.35rem;
-    }
-
-    /* Match history */
-    .h2h-matches-wrap { flex: 1; overflow-y: auto; padding: 0 1.5rem 1.5rem; }
-    .h2h-matches-title {
-      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--muted-foreground); margin: 0.9rem 0 0.5rem;
-      padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
-    }
-    .h2h-match-row {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.55rem 0; border-bottom: 1px solid oklch(0.35 0.04 160 / 0.2);
-      font-size: 0.8rem;
-    }
-    .h2h-match-row:last-child { border-bottom: none; }
-    .h2h-match-date { color: var(--muted-foreground); font-size: 0.68rem; white-space: nowrap; min-width: 5rem; }
-    .h2h-match-teams { flex: 1; font-size: 0.78rem; }
-    .h2h-match-vs { color: var(--muted-foreground); font-size: 0.7rem; margin: 0 0.2rem; }
-    .h2h-match-score {
-      font-weight: 900; font-size: 1rem; font-variant-numeric: tabular-nums;
-      min-width: 3rem; text-align: center;
-    }
-    .h2h-match-score.a-win { color: var(--primary); }
-    .h2h-match-score.b-win { color: oklch(0.65 0.18 20); }
-    .h2h-match-score.draw  { color: oklch(0.78 0.12 60); }
-    .h2h-no-matches {
-      text-align: center; color: var(--muted-foreground);
-      padding: 2.5rem; font-size: 0.9rem;
-    }
-    #h2hBody {
-      display: flex; flex-direction: column; flex: 1; overflow: hidden;
-    }
-
-    /* ── Stat comparison rows ── */
-    .cmp-section-title {
-      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--muted-foreground); margin: 1rem 0 0.55rem;
-      padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
-    }
-    .cmp-row {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.45rem 0; border-bottom: 1px solid oklch(0.35 0.04 160 / 0.15);
-    }
-    .cmp-row:last-child { border-bottom: none; }
-    .cmp-val {
-      width: 3.5rem; font-size: 0.9rem; font-weight: 900;
-      text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums;
-    }
-    .cmp-val.right { text-align: left; }
-    .cmp-val.cmp-winner { color: var(--primary); }
-    .cmp-center {
-      flex: 1; display: flex; flex-direction: column; gap: 0.2rem; align-items: center;
-    }
-    .cmp-label {
-      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
-      text-transform: uppercase; color: var(--muted-foreground);
-    }
-    .cmp-bar {
-      width: 100%; height: 6px; border-radius: 99px; overflow: hidden;
-      background: var(--border); display: flex;
-    }
-    .cmp-bar-a { height: 100%; background: var(--primary); border-radius: 99px 0 0 99px; }
-    .cmp-bar-b { height: 100%; background: oklch(0.65 0.18 20); border-radius: 0 99px 99px 0; }
-
-    /* Loading / empty */
-    .players-empty {
-      text-align: center; color: var(--muted-foreground);
-      font-size: 0.9rem; padding: 3rem; grid-column: 1/-1;
-    }
-  </style>
+  <link rel="stylesheet" href="../css/pages/players-list.css" />
 </head>
 <body id="top">
 
@@ -374,16 +22,16 @@
 
       <nav>
         <a href="teams.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
           TEAMS
         </a>
-        <a href="players-list.html" style="color: var(--primary);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <a href="players-list.html" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           PLAYERS
         </a>
         <div class="nav-dropdown">
           <span class="nav-dropdown-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+            <svg class="results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><rect x="7" y="11" width="3" height="5" rx="1"/><rect x="12" y="7" width="3" height="9" rx="1"/><rect x="17" y="9" width="3" height="7" rx="1"/></svg>
             RESULTS
             <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
@@ -392,6 +40,10 @@
             <a href="results.html#bracket">Bracket</a>
           </div>
         </div>
+        <a href="rules.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+          RULES
+        </a>
         <a href="terms.html">TERMS AND CONDITIONS</a>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -443,12 +95,12 @@
   </div>
 
   <div class="players-grid" id="playersGrid">
-    <div class="loading-state" style="grid-column:1/-1">
+    <div class="loading-state grid-span-all">
       <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
     </div>
   </div>
 
-  <div class="pagination" id="playersPagination" style="padding: 0 1.5rem 4rem; max-width:1600px; margin:0 auto;"></div>
+  <div class="pagination" id="playersPagination" class="players-pagination-shell"></div>
 
   <!-- Modal (reused from results page) -->
   <div class="player-modal" id="playerModal">
@@ -478,23 +130,16 @@
 
   <footer>
     <span id="footer-text">© Copyright 2026 - ESportsBattle. All rights are reserved.<br/>
-     We’re using cookies and here’s our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Privacy Policy</a>.<br/>
+     We’re using cookies and here’s our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" class="footer-link">Privacy Policy</a>.<br/>
      No part of ESportsBattle materials may be used without prior written permission by the Company and a valid link referring to the source.</span>
   </footer>
 
-  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" data-scroll-top>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="18 15 12 9 6 15"/>
     </svg>
   </button>
-
-  <script>
-    const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scrol    window.addEventListener('scroll', () => {
-      scrollBtn.classList.toggle('visible', window.scrollY > 300);
-    }, { passive: true });
-  </script>
-  <script src="../js/players-list.js"></script>
+<script src="../js/players-list.js"></script>
   <script src="../js/nav.js"></script>
 </body>
 </html>

@@ -1,0 +1,17 @@
+.terms-hero { padding: 2rem 1.5rem 3rem; max-width: 860px; margin: 0 auto; }
+    .terms-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; letter-spacing: -0.02em; margin-top: 1.5rem; }
+    .terms-hero h1 span { color: var(--primary); }
+    .terms-body {
+      max-width: 860px; margin: 0 auto; padding: 0 1.5rem 5rem;
+      display: flex; flex-direction: column; gap: 2rem;
+    }
+    .terms-section h2 {
+      font-size: 1rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.6rem;
+    }
+    .terms-section p, .terms-section li {
+      font-size: 0.9rem; color: var(--muted-foreground); line-height: 1.7;
+    }
+    .terms-section ul { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    .terms-divider { border: none; border-top: 1px solid var(--border); }
+    .terms-updated { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.5rem; }

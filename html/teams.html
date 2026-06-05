@@ -20,17 +20,17 @@
       </a>
 
       <nav>
-        <a href="teams.html" style="color: var(--primary);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        <a href="teams.html" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
           TEAMS
         </a>
         <a href="players-list.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           PLAYERS
         </a>
         <div class="nav-dropdown">
           <span class="nav-dropdown-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+            <svg class="results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><rect x="7" y="11" width="3" height="5" rx="1"/><rect x="12" y="7" width="3" height="9" rx="1"/><rect x="17" y="9" width="3" height="7" rx="1"/></svg>
             RESULTS
             <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
@@ -39,6 +39,10 @@
             <a href="results.html#bracket">Bracket</a>
           </div>
         </div>
+        <a href="rules.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+          RULES
+        </a>
         <a href="terms.html">TERMS AND CONDITIONS</a>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -259,126 +263,15 @@
 
   <footer>
     <span id="footer-text">© Copyright 2026 - ESportsBattle. All rights are reserved.<br/>
-     We’re using cookies and here’s our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Privacy Policy</a>.<br/>
+     We’re using cookies and here’s our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" class="footer-link">Privacy Policy</a>.<br/>
      No part of ESportsBattle materials may be used without prior written permission by the Company and a valid link referring to the source.</span>
   </footer>
 
-  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" data-scroll-top>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="18 15 12 9 6 15"/>
     </svg>
   </button>
-
-  <script>
-    const t = {
-      EN: {
-        teamsTitle: 'The <span>48 teams</span> of World Cup 2026',
-        teamsDesc: 'All nations competing across 12 groups — from group stage to the final at MetLife Stadium, New York.',
-        confTitle: 'Teams by confederation',
-        footer: '© 2026 ESportsBattle. The largest esports platform. esportsbattle.com',
-        nav: ['ABOUT', 'TEAMS', 'RESULTS', 'NEWS', 'TERMS AND CONDITIONS'],
-        groups: [
-          'Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F',
-          'Group G', 'Group H', 'Group I', 'Group J', 'Group K', 'Group L'
-        ],
-        debut: 'Debut',
-      },
-      UA: {
-        teamsTitle: '<span>48 збірних</span> Чемпіонату світу 2026',
-        teamsDesc: 'Всі збірні у 12 групах — від групового етапу до фіналу на стадіоні MetLife у Нью-Йорку.',
-        confTitle: 'Команди за конфедерацією',
-        footer: '© 2026 ESportsBattle. Найбільша кіберспортивна платформа. esportsbattle.com',
-        nav: ['ПРО НАС', 'КОМАНДИ', 'ГРАВЦІ', 'НОВИНИ', 'УМОВИ'],
-        groups: [
-          'Група A', 'Група B', 'Група C', 'Група D', 'Група E', 'Група F',
-          'Група G', 'Група H', 'Група I', 'Група J', 'Група K', 'Група L'
-        ],
-        debut: 'Дебют',
-      },
-    };
-
-    const teamNames = {
-      EN: [
-        ['Mexico','South Korea','South Africa','Czechia'],
-        ['Canada','Switzerland','Qatar','Bosnia & Herzegovina'],
-        ['Brazil','Morocco','Scotland','Haiti'],
-        ['United States','Australia','Paraguay','Turkey'],
-        ['Germany','Ecuador','Ivory Coast','Curaçao'],
-        ['Netherlands','Japan','Tunisia','Sweden'],
-        ['Belgium','Egypt','Iran','New Zealand'],
-        ['Spain','Cape Verde','Saudi Arabia','Uruguay'],
-        ['France','Senegal','Iraq','Norway'],
-        ['Argentina','Algeria','Austria','Jordan'],
-        ['Portugal','Colombia','Uzbekistan','DR Congo'],
-        ['England','Croatia','Panama','Ghana'],
-      ],
-      UA: [
-        ['Мексика','Південна Корея','ПАР','Чехія'],
-        ['Канада','Швейцарія','Катар','Боснія і Герцеговина'],
-        ['Бразилія','Марокко','Шотландія','Гаїті'],
-        ['США','Австралія','Парагвай','Туреччина'],
-        ['Німеччина','Еквадор','Кот-д\'Івуар','Кюрасао'],
-        ['Нідерланди','Японія','Туніс','Швеція'],
-        ['Бельгія','Єгипет','Іран','Нова Зеландія'],
-        ['Іспанія','Кабо-Верде','Саудівська Аравія','Уругвай'],
-        ['Франція','Сенегал','Ірак','Норвегія'],
-        ['Аргентина','Алжир','Австрія','Йорданія'],
-        ['Португалія','Колумбія','Узбекистан','ДР Конго'],
-        ['Англія','Хорватія','Панама','Гана'],
-      ],
-    };
-
-    let currentLang = 'EN';
-
-    function applyLang(lang) {
-      const tr = t[lang];
-      document.getElementById('teams-title').innerHTML = tr.teamsTitle;
-      document.getElementById('teams-desc').textContent = tr.teamsDesc;
-      document.getElementById('conf-title').textContent = tr.confTitle;
-      document.getElementById('footer-text').textContent = tr.footer;
-
-      const navLinks = document.querySelectorAll('nav a');
-      const navSpanSelectors = ['.nav-about', '.nav-teams', '.nav-players', '.nav-news', '.nav-terms'];
-      navSpanSelectors.forEach((sel, i) => {
-        const el = document.querySelector(sel);
-        if (el) el.textContent = tr.nav[i];
-      });
-
-      const groupCards = document.querySelectorAll('.group-card');
-      groupCards.forEach((card, gi) => {
-        const label = card.querySelector('.group-label');
-        if (label) label.textContent = tr.groups[gi];
-
-        const teamItems = card.querySelectorAll('.team-item');
-        teamItems.forEach((item, ti) => {
-          const nameEl = item.querySelector('.team-name');
-          const badgeEl = item.querySelector('.team-badge');
-          if (nameEl && teamNames[lang][gi] && teamNames[lang][gi][ti]) {
-            nameEl.textContent = teamNames[lang][gi][ti];
-          }
-          if (badgeEl) badgeEl.textContent = tr.debut;
-        });
-      });
-
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.lang === lang);
-      });
-
-      currentLang = lang;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => applyLang(btn.dataset.lang));
-      });
-
-      const scrollBtn = document.getElementById('scrollTopBtn');
-      window.addEventListener('scroll', () => {
-        scrollBtn.classList.toggle('visible', window.scrollY > 300);
-      }, { passive: true });
-    });
-  </script>
   <script src="../js/nav.js"></script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                              

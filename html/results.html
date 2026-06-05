@@ -8,94 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="../assets/favico.ico" />
   <link rel="stylesheet" href="../css/styles.css" />
   <link rel="stylesheet" href="../css/players.css" />
-  <style>
-    /* ── Unified filter panel ── */
-    .lf-panel {
-      max-width: 1600px; margin: 0 auto;
-      padding: 0 1.5rem 0.5rem;
-    }
-    .lf-card {
-      background: oklch(0.14 0.02 145 / 0.7);
-      border: 1px solid var(--border);
-      border-radius: 1rem;
-      padding: 0.75rem 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .lf-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .lf-label {
-      font-size: 0.6rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted-foreground);
-      min-width: 3.5rem;
-      flex-shrink: 0;
-    }
-    .lf-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0;
-    }
-    .lf-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-    }
-    .lf-btn {
-      padding: 0.28rem 0.85rem;
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0;
-      text-transform: none;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted-foreground);
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
-    }
-    .lf-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .lf-btn.active-group {
-      background: oklch(0.55 0.2 280);
-      border-color: oklch(0.55 0.2 280);
-      color: #fff;
-    }
-    .lf-btn.active-month {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #000;
-      font-weight: 700;
-    }
-    .lf-btn.active-filter {
-      background: oklch(0.62 0.18 55);
-      border-color: oklch(0.62 0.18 55);
-      color: #000;
-      font-weight: 700;
-    }
-    .lf-date-input {
-      padding: 0.25rem 0.6rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--foreground);
-      font-size: 0.72rem;
-      cursor: pointer;
-      color-scheme: dark;
-    }
-    .lf-date-input:focus { outline: none; border-color: var(--primary); }
-    /* hide source row if only one source */
-    .lf-row.lf-source-row[data-count="1"],
-    .lf-row.lf-source-row[data-count="0"] { display: none; }
-    .lf-row.lf-source-row[data-count="1"] + .lf-divider { display: none; }
-  </style>
+  <link rel="stylesheet" href="../css/pages/results.css" />
 </head>
 <body id="top">
 
@@ -109,24 +22,28 @@
 
       <nav>
         <a href="teams.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
           TEAMS
         </a>
         <a href="players-list.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           PLAYERS
         </a>
         <div class="nav-dropdown">
-          <span class="nav-dropdown-toggle" style="color: var(--primary);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+          <span class="nav-dropdown-toggle active">
+            <svg class="results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><rect x="7" y="11" width="3" height="5" rx="1"/><rect x="12" y="7" width="3" height="9" rx="1"/><rect x="17" y="9" width="3" height="7" rx="1"/></svg>
             RESULTS
             <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
           <div class="nav-dropdown-menu">
-            <a href="#group" onclick="switchView('leagues');return false;">Group Stage</a>
-            <a href="#bracket" onclick="switchView('results');return false;">Bracket</a>
+            <a href="#group" data-results-view="leagues">Group Stage</a>
+            <a href="#bracket" data-results-view="results">Bracket</a>
           </div>
         </div>
+        <a href="rules.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+          RULES
+        </a>
         <a href="terms.html">TERMS AND CONDITIONS</a>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -170,7 +87,7 @@
     <div class="view-tabs">
       <button class="view-tab active" data-view="leagues">Group Stage</button>
       <button class="view-tab" data-view="results">Bracket</button>
-      <button id="refreshBtn" class="refresh-btn" onclick="manualRefresh()" title="Refresh data">
+      <button id="refreshBtn" class="refresh-btn" data-manual-refresh title="Refresh data">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
           <path d="M21 3v5h-5"/>
@@ -180,15 +97,15 @@
       </button>
       <div class="ar-group">
         <span class="ar-label">Auto</span>
-        <button class="ar-btn" data-s="5"  onclick="setAutoRefresh(5)">5s</button>
-        <button class="ar-btn" data-s="15" onclick="setAutoRefresh(15)">15s</button>
-        <button class="ar-btn" data-s="30" onclick="setAutoRefresh(30)">30s</button>
-        <button class="ar-btn ar-off active" data-s="0" onclick="setAutoRefresh(0)">Off</button>
+        <button class="ar-btn" data-s="5" data-auto-refresh="5">5s</button>
+        <button class="ar-btn" data-s="15" data-auto-refresh="15">15s</button>
+        <button class="ar-btn" data-s="30" data-auto-refresh="30">30s</button>
+        <button class="ar-btn ar-off active" data-s="0" data-auto-refresh="0">Off</button>
       </div>
     </div>
   </section>
 
-  <div class="lf-panel" id="lfPanel" style="display:none">
+  <div class="lf-panel is-hidden" id="lfPanel">
     <div class="lf-card">
       <div class="lf-row lf-source-row" id="lfSourceRow" data-count="0">
         <span class="lf-label">Group</span>
@@ -202,30 +119,30 @@
         </div>
       </div>
       <!-- Results-view-only rows -->
-      <hr class="lf-divider lf-results-only" style="display:none" />
-      <div class="lf-row lf-results-only" style="display:none">
+      <hr class="lf-divider lf-results-only is-hidden" />
+      <div class="lf-row lf-results-only is-hidden">
         <span class="lf-label">League</span>
         <div class="lf-bar" id="tournamentBar">
           <button class="lf-btn active-filter" data-filter="all">All</button>
         </div>
       </div>
-      <hr class="lf-divider lf-results-only" style="display:none" />
-      <div class="lf-row lf-results-only" style="display:none; flex-wrap:wrap; gap:0.5rem; align-items:center">
+      <hr class="lf-divider lf-results-only is-hidden" />
+      <div class="lf-row lf-results-only is-hidden filter-range-row">
         <span class="lf-label">Date</span>
         <input type="date" id="dateFrom" class="lf-date-input" />
-        <span style="color:var(--muted-foreground);font-size:0.72rem">→</span>
+        <span class="range-separator">→</span>
         <input type="date" id="dateTo" class="lf-date-input" />
-        <button class="lf-btn" id="clearFilters" style="margin-left:0.25rem">Clear</button>
+        <button class="lf-btn" id="clearFilters" class="clear-filter-btn">Clear</button>
       </div>
     </div>
   </div>
 
   <!-- old filter section removed; replaced by lf-panel rows above -->
-  <div id="filterSection" style="display:none">
+  <div id="filterSection" class="is-hidden">
     <div id="filterBar"></div>
   </div>
 
-  <section class="results-section container" id="resultsSection" style="display:none">
+  <section class="results-section container is-hidden" id="resultsSection">
     <div class="results-count" id="resultsCount"></div>
     <div class="results-grid-inner" id="resultsGrid"></div>
     <div class="pagination" id="pagination"></div>
@@ -237,7 +154,7 @@
 
   <footer>
     <span id="footer-text">© Copyright 2026 - ESportsBattle. All rights are reserved.<br/>
-     We’re using cookies and here’s our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Privacy Policy</a>.<br/>
+     We’re using cookies and here’s our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer" class="footer-link">Privacy Policy</a>.<br/>
      No part of ESportsBattle materials may be used without prior written permission by the Company and a valid link referring to the source.</span>
   </footer>
 
@@ -253,21 +170,12 @@
     </div>
   </div>
 
-  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" data-scroll-top>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" >
       <polyline points="18 15 12 9 6 15"/>
     </svg>
   </button>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var btn = document.getElementById('scrollTopBtn');
-      if (!btn) return;
-      window.addEventListener('scroll', function () {
-        btn.classList.toggle('visible', window.scrollY > 300);
-      }, { passive: true });
-    });
-  </script>
+  <script src="../js/pages/results-page.js"></script>
   <script src="../js/players.js"></script>
   <script src="../js/tournament.js"></script>
   <script src="../js/nav.js"></script>

@@ -1,0 +1,104 @@
+.rules-hero {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.rules-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin-top: 1.5rem;
+}
+
+.rules-hero h1 span {
+  color: var(--primary);
+}
+
+.rules-hero p {
+  max-width: 760px;
+  margin-top: 0.85rem;
+  color: var(--muted-foreground);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.rules-body {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.rules-section {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(135deg, oklch(0.2 0.05 145 / 0.6), oklch(0.12 0.03 160 / 0.82)),
+    oklch(0.14 0.03 150 / 0.75);
+  padding: 1.2rem 1.35rem;
+  backdrop-filter: blur(10px);
+}
+
+.rules-section h2 {
+  margin-bottom: 0.75rem;
+  color: var(--primary);
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rules-section p,
+.rules-section li {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.rules-section ul,
+.rules-section ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  padding-left: 1.25rem;
+}
+
+.rules-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.rules-point {
+  border: 1px solid oklch(0.42 0.08 145);
+  border-radius: 0.6rem;
+  padding: 0.85rem;
+  background: oklch(0.18 0.05 145 / 0.72);
+}
+
+.rules-point strong {
+  display: block;
+  color: var(--primary);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.rules-point span {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .rules-points {
+    grid-template-columns: 1fr;
+  }
+}

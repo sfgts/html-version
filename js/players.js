@@ -495,13 +495,6 @@ function renderPagination(totalPages) {
 
 /* ── Leagues ── */
 
-function teamAvatarColor(name) {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
-  const hue = Math.abs(h) % 360;
-  return `oklch(0.62 0.18 ${hue})`;
-}
-
 function computeLeaguesForDate(date, matches = allMatches) {
   const leagues = {};
 
@@ -627,11 +620,11 @@ function switchView(view) {
   location.hash = (view === 'results') ? 'bracket' : 'group';
   document.querySelectorAll('.view-tab').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   const showResults = view === 'results';
-  document.getElementById('resultsSection').style.display = showResults ? '' : 'none';
-  document.getElementById('leaguesSection').style.display = showResults ? 'none' : '';
+  setHidden(document.getElementById('resultsSection'), !showResults);
+  setHidden(document.getElementById('leaguesSection'), showResults);
   // Show/hide Results-only rows inside the lf-panel
   document.querySelectorAll('.lf-results-only').forEach(el => {
-    el.style.display = showResults ? '' : 'none';
+    setHidden(el, !showResults);
   });
   if (view === 'leagues') renderLeagues();
   else if (view === 'results') render();
@@ -660,6 +653,21 @@ let currentPage   = 1;
 let dataReady     = false; // true once first paint (cache or fetch) is done
 
 const CACHE_KEY = 'esb_matches_v7';
+
+function setHidden(el, hidden) {
+  if (!el) return;
+  el.classList.toggle('is-hidden', hidden);
+  el.style.display = hidden ? 'none' : '';
+}
+
+function cacheBustUrl(url) {
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}_=${Date.now()}`;
+}
+
+function fetchFresh(url) {
+  return fetch(cacheBustUrl(url), { cache: 'no-store' });
+}
 
 window.goPage = function(p) {
   currentPage = p;
@@ -694,10 +702,10 @@ function render() {
   if (!filtered.length) {
     grid.innerHTML = '';
     if (countEl) countEl.textContent = '';
-    if (lfPanelEl) lfPanelEl.style.display = 'none';
+    setHidden(lfPanelEl, true);
     return;
   }
-  if (lfPanelEl) lfPanelEl.style.display = '';
+  setHidden(lfPanelEl, false);
   grid.innerHTML = page.map(renderCard).join('');
 
   renderPagination(totalPages);
@@ -781,7 +789,6 @@ let monthOrder = []; // array of month label strings in display order
 
 // ── Fetch all match sheets in parallel, merge, cache ─────────────────────────
 async function fetchAndUpdate(sources) {
-  const cb = '&_=' + Date.now();
   const entries = flattenSources(sources);
   // Store month order for refreshMonthBar
   if (sources.months) {
@@ -790,7 +797,7 @@ async function fetchAndUpdate(sources) {
   // allSettled — one bad URL doesn't kill the rest
   const results = await Promise.allSettled(
     entries.map(e =>
-      fetch(e.url + cb)
+      fetchFresh(e.url)
         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
     )
   );
@@ -901,9 +908,9 @@ async function init() {
 
   // ── Step 3: Fetch sources config, then all match sheets in parallel ───────
   try {
-    const sources = await fetch(SOURCES_URL + '?_=' + Date.now()).then(r => r.json());
+    const sources = await fetchFresh(SOURCES_URL).then(r => r.json());
     // Init tournament group stage (tournament.js)
-    if (typeof initTournament === 'function') initTournament(sources);
+    if (typeof initTournament === 'function') await initTournament(sources);
     await fetchAndUpdate(sources);
     dataReady = true;
     refreshSourceBar();
@@ -987,9 +994,8 @@ async function init() {
     btn.addEventListener('click', () => switchView(btn.dataset.view));
   });
 
-  // Populate both grids so switching tabs is instant
-  render();
-  renderLeagues();
+  // Apply the initial hash-driven view after data is available.
+  switchView(activeView);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1000,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('refreshBtn');
     if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
     try {
-      const sources = await fetch(SOURCES_URL + '?_=' + Date.now()).then(r => r.json());
+      const sources = await fetchFresh(SOURCES_URL).then(r => r.json());
       if (typeof initTournament === 'function') await initTournament(sources);
       await fetchAndUpdate(sources);
       dataReady = true;
@@ -1017,6 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auto-refresh — controlled by user via UI
   let autoRefreshTimer = null;
   window.setAutoRefresh = function(seconds) {
+    seconds = Number(seconds) || 0;
     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
     // Update button states
     document.querySelectorAll('.ar-btn').forEach(b => b.classList.remove('active'));
@@ -1028,4 +1035,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }, seconds * 1000);
     }
   };
+  window.setAutoRefresh(0);
+
+  window.addEventListener('pageshow', event => {
+    if (event.persisted && typeof window.manualRefresh === 'function') {
+      window.manualRefresh();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && typeof window.manualRefresh === 'function') {
+      window.manualRefresh();
+    }
+  });
 });
