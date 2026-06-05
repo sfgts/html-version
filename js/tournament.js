@@ -22,8 +22,17 @@ const FLAG_CODES = {
   'korea republic': 'kr', 'republic of korea': 'kr',
 };
 
+function flagCodeFor(teamName) {
+  const key = String(teamName || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+  return FLAG_CODES[key] || FLAG_CODES[String(teamName || '').toLowerCase().trim()];
+}
+
 function flagImg(teamName, side) {
-  const code = FLAG_CODES[teamName.toLowerCase()];
+  const code = flagCodeFor(teamName);
   if (!code) return '';
   const align = side === 'right' ? 'style="order:1"' : '';
   return `<img class="tgm-flag" src="https://flagcdn.com/w20/${code}.png" alt="${teamName}" ${align}>`;
@@ -415,7 +424,7 @@ function renderGroupCard(group) {
           <th class="center">Pts</th>
         </tr></thead>
         <tbody>${standings.map((s, i) => {
-          const flagCode = FLAG_CODES[s.team.toLowerCase()];
+          const flagCode = flagCodeFor(s.team);
           const flagEl   = flagCode
             ? `<img class="team-flag-sm" src="https://flagcdn.com/w40/${flagCode}.png" alt="${s.team}">`
             : `<span class="team-avatar" style="background:${teamAvatarColor(s.team)}">${s.team.replace(/[^A-Za-z0-9]/g,' ').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()}</span>`;
@@ -456,7 +465,7 @@ function renderGroupCard(group) {
     } else if (hasHT) {
       scoreHTML = `<span class="tgm-ft live-ht">HT ${m.half1}:${m.half2}</span>`;
     } else {
-      scoreHTML = `<span class="tgm-ft">â€”:â€”</span>`;
+      scoreHTML = `<span class="tgm-ft">-:-</span>`;
     }
 
     return `<div class="tgroup-match${isLive ? ' match-live' : ''}">
@@ -578,7 +587,7 @@ function renderLeagues() {
           : g.matches.filter(m => m.score1 === '' || isNaN(+m.score1));
 
         function spPlayerCard(name, team) {
-          const code = FLAG_CODES[(team || '').toLowerCase()];
+          const code = flagCodeFor(team);
           const flagUrl = code ? `https://flagcdn.com/w80/${code}.png` : null;
           const photoSrc = playerPhotoSrc(name);
           const initials = name.replace(/[^A-Za-z0-9]/g,' ').trim()
@@ -717,7 +726,7 @@ function bracketCard(m) {
 
   const teamRow = (team, player, score, win, ht) => {
     const isTBD = !team || team.toUpperCase() === 'TBD';
-    const code  = !isTBD ? FLAG_CODES[team.toLowerCase()] : null;
+    const code  = !isTBD ? flagCodeFor(team) : null;
     const flagEl = code
       ? `<img class="bcard-flag" src="https://flagcdn.com/w40/${code}.png" alt="${team}">`
       : `<span class="bcard-flag bcard-flag--empty"></span>`;
@@ -756,7 +765,7 @@ function finalWinner(m) {
 function championSpotlight(m) {
   const winner = finalWinner(m);
   if (!winner || !winner.team || winner.team.toUpperCase() === 'TBD') return '';
-  const code = FLAG_CODES[winner.team.toLowerCase()];
+  const code = flagCodeFor(winner.team);
   const flagEl = code
     ? `<img class="champion-flag" src="https://flagcdn.com/w80/${code}.png" alt="${winner.team}">`
     : '<span class="champion-flag champion-flag--empty"></span>';
