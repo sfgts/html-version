@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ESportsBattle World Cup Championship 2026</title>
-  <meta name="description" content="ESportsBattle produces and delivers World Cup esports coverage: live results, group standings, brackets, players and tournament updates." />
+  <meta name="description" content="ESportsBattle produces and delivers World Cup esports coverage: live results, group standings, play-offs, players and tournament updates." />
   <link rel="icon" type="image/svg+xml" href="assets/favico.ico" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -35,7 +35,7 @@
           </span>
           <div class="nav-dropdown-menu">
             <a href="html/results.html#group">Group Stage</a>
-            <a href="html/results.html#bracket">Bracket</a>
+            <a href="html/results.html#bracket">Play-Off</a>
           </div>
         </div>
         <a href="html/rules.html">
@@ -86,14 +86,14 @@
       <h1 id="hero-title">We bring the <span>World Cup</span> esports story to life.</h1>
       <p id="hero-desc">
         We are ESportsBattle: the team creating, producing and delivering this tournament hub with live results,
-        group standings, bracket updates, player stats and match coverage in one place.
+        group standings, play-off updates, player stats and match coverage in one place.
       </p>
     </div>
   </section>
 
   <section class="video-section container">
     <div class="video-wrapper">
-      <video autoplay muted loop controls playsinline>
+      <video autoplay muted loop controls playsinline preload="auto" data-promo-video>
         <source src="assets/promo.mp4" type="video/mp4">
       </video>
       <div class="video-placeholder is-hidden">
@@ -113,7 +113,7 @@
         <h2 id="who-title">Who We Are</h2>
         <h3 class="who-subtitle" id="who-subtitle1">The team behind the tournament content</h3>
         <p id="who-p1">We are the people behind this World Cup hub, bringing the tournament experience closer to fans through clear data, fast updates and polished esports coverage.</p>
-        <p id="who-p2"><strong>ESportsBattle</strong> provides the content layer around every match: results, standings, brackets, player profiles and tournament stories.</p>
+        <p id="who-p2"><strong>ESportsBattle</strong> provides the content layer around every match: results, standings, play-offs, player profiles and tournament stories.</p>
         <h3 class="who-subtitle" id="who-subtitle2">What to Expect</h3>
         <p id="who-p3">Experience the thrill of global rivalry as elite players battle under national banners for ultimate dominance.</p>
       </div>
@@ -122,10 +122,33 @@
 
   <section class="stats container">
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">48</div><div class="label">Nations</div></div>
-      <div class="stat-card"><div class="value">104</div><div class="label">Matches</div></div>
-      <div class="stat-card"><div class="value">16</div><div class="label">Host Cities</div></div>
-      <div class="stat-card"><div class="value">39</div><div class="label">Days of Football</div></div>
+      <div class="stat-card">
+        <div class="value">48</div>
+        <div class="label">National Teams</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">72</div>
+        <div class="label">Group Stage Matches</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">32</div>
+        <div class="label">Play-Off Matches</div>
+      </div>
+      <div class="stat-card">
+        <div class="value value-inline">3 Days</div>
+        <div class="label">Tournament Days Each Week</div>
+        <div class="label label-sub">Friday / Saturday / Sunday</div>
+      </div>
+      <div class="stat-card stat-card--wide">
+        <div class="value">07:00 / 16:00</div>
+        <div class="label">Group Stage / Play-Off Start</div>
+        <div class="label label-sub">Group match - 12 min<br>Play-off match - 18 min</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">12</div>
+        <div class="label">Groups</div>
+        <div class="label label-sub">4 National Teams Each</div>
+      </div>
     </div>
   </section>
 
@@ -141,6 +164,7 @@
     </svg>
   </button>
 
+  <script src="js/pages/home-page.js"></script>
   <script src="js/nav.js"></script>
 </body>
 </html>

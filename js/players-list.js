@@ -95,6 +95,11 @@ function playerAvatarColor(name) {
   return `oklch(0.58 0.2 ${hue})`;
 }
 
+function playerPhotoSrc(name) {
+  const fileName = String(name || '').trim().toLowerCase();
+  return `../assets/players/${fileName}.png`;
+}
+
 /* ── Stats ── */
 let allMatches = [];
 
@@ -198,7 +203,7 @@ function openPlayerModal(name) {
   const dPct = matches ? (draws / matches * 100).toFixed(0) : 0;
   const lPct = matches ? (losses / matches * 100).toFixed(0) : 0;
 
-  const photoSrc = `../assets/players/${name}.png`;
+  const photoSrc = playerPhotoSrc(name);
   const avatarColor = playerAvatarColor(name);
   const initials = name.replace(/[^A-Za-z0-9Ѐ-ӿ]/g, ' ').trim()
     .split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || name.slice(0, 2).toUpperCase();
@@ -301,7 +306,7 @@ function renderCard(name, s, rank) {
   const color = playerAvatarColor(name);
   const winRate = s.matches ? Math.round(s.wins / s.matches * 100) : 0;
   const tours = Object.keys(s.byT);
-  const photoSrc = `../assets/players/${name}.png`;
+  const photoSrc = playerPhotoSrc(name);
 
   const tourBadges = '';
 
@@ -439,7 +444,7 @@ function openH2HModal(nameA, nameB) {
   }
 
   function playerPhoto(name, color) {
-    const src = `../assets/players/${name}.png`;
+    const src = playerPhotoSrc(name);
     return `
       <div class="h2h-player">
         <div class="h2h-photo-wrap" style="--pc-color:${color}">
@@ -739,11 +744,11 @@ function parseGroupMatches(rows, date, groupName) {
 const TOURNAMENT_GROUPS = ['GroupA','GroupB','GroupC','GroupD','GroupE','GroupF',
                            'GroupG','GroupH','GroupI','GroupJ','GroupK','GroupL'];
 
-// Parse matches from GRID (bracket) sheet
+// Parse matches from GRID (play-off) sheet
 function parseGridMatches(rows, date) {
   const norm = s => String(s).toLowerCase().replace(/[\s_-]+/g, '').trim();
   const BRACKET_ROUNDS = ['1/16','1/8','1/4','1/2','final'];
-  const ROUND_LABELS   = { '1/16':'Round of 16','1/8':'Quarter-finals','1/4':'Semi-finals','1/2':'Semi-finals','final':'Final' };
+  const ROUND_LABELS   = { '1/16':'Round of 16','1/8':'Round of 8','1/4':'Quarter-finals','1/2':'Semi-finals','final':'Final' };
 
   const matches = [];
   let currentRound = null;
@@ -811,7 +816,7 @@ async function loadMatchesFromTournamentIndex(indexUrl) {
   const allMatchesFromSheets = [];
   await Promise.allSettled(
     entries.map(async ({ date, id }) => {
-      // Load group stage sheets + bracket (GRID) in parallel
+      // Load group stage sheets + play-off (GRID) in parallel
       const [groupResults, gridRows] = await Promise.all([
         Promise.allSettled(
           TOURNAMENT_GROUPS.map(g => fetchGviz(id, g).then(rows => parseGroupMatches(rows, date, g)))

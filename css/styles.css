@@ -152,14 +152,37 @@ nav a svg { width: 1rem; height: 1rem; }
 
 .stats { padding-bottom: 5rem; }
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-@media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 900px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
 .stat-card {
   border-radius: var(--radius); border: 1px solid var(--border);
   background: var(--card); backdrop-filter: blur(12px);
-  padding: 1.5rem 1rem 2rem; text-align: center;
+  min-height: 8.25rem;
+  padding: 1.5rem 1rem 1.6rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.stat-card .value { font-size: 3rem; font-weight: 900; color: var(--primary); line-height: 1; }
-.stat-card .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); margin-top: 0.5rem; }
+.stat-card .value {
+  font-size: clamp(2.35rem, 4.5vw, 3rem);
+  font-weight: 900; color: var(--primary); line-height: 1;
+}
+.stat-card .label {
+  max-width: 16rem;
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted-foreground); margin-top: 0.6rem; line-height: 1.35;
+}
+.stat-card .label-sub { margin-top: 0.35rem; }
+.stat-card .note {
+  max-width: 18rem;
+  margin-top: 0.45rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  opacity: 0.78;
+  line-height: 1.55;
+}
+.stat-card--wide .value { font-size: clamp(1.55rem, 2.75vw, 2.15rem); }
+.stat-card .value-inline { font-size: clamp(1.8rem, 3.4vw, 2.45rem); }
 
 
 footer {

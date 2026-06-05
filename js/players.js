@@ -86,6 +86,11 @@ function normTime(t) {
   return p[0].padStart(2, '0') + ':' + (p[1] || '00').padStart(2, '0');
 }
 
+function playerPhotoSrc(name) {
+  const fileName = String(name || '').trim().toLowerCase();
+  return `../assets/players/${fileName}.png`;
+}
+
 // Tournament day starts at 07:00. Matches before 07:00 belong to the previous calendar day.
 const DAY_START_HOUR = 7;
 
@@ -246,7 +251,7 @@ function openPlayerModal(name) {
     modalCard.appendChild(photoCol);
   }
   photoCol.innerHTML = `
-    <img class="modal-photo-img" src="../assets/players/${name}.png" alt="${name}"
+    <img class="modal-photo-img" src="${playerPhotoSrc(name)}" alt="${name}"
          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
     <div class="modal-photo-avatar" style="background:${avatarColor};display:none">${initials}</div>
   `;

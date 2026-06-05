@@ -29,6 +29,11 @@ function flagImg(teamName, side) {
   return `<img class="tgm-flag" src="https://flagcdn.com/w20/${code}.png" alt="${teamName}" ${align}>`;
 }
 
+function playerPhotoSrc(name) {
+  const fileName = String(name || '').trim().toLowerCase();
+  return `../assets/players/${fileName}.png`;
+}
+
 const TOURNAMENT_GROUPS = [
   'GroupA','GroupB','GroupC','GroupD','GroupE','GroupF',
   'GroupG','GroupH','GroupI','GroupJ','GroupK','GroupL',
@@ -538,7 +543,7 @@ function renderLeagues() {
         function spPlayerCard(name, team) {
           const code = FLAG_CODES[(team || '').toLowerCase()];
           const flagUrl = code ? `https://flagcdn.com/w80/${code}.png` : null;
-          const photoSrc = `../assets/players/${name}.png`;
+          const photoSrc = playerPhotoSrc(name);
           const initials = name.replace(/[^A-Za-z0-9]/g,' ').trim()
             .split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || name.slice(0,2).toUpperCase();
           let h = 0;
@@ -757,7 +762,7 @@ function bracketColumn(label, matches, className = '') {
 function buildBracketGrid(sections) {
   // Find first round that has actual data to determine if we have anything to show
   const hasAny = ROUND_ORDER.some(k => sections.find(s => s.key === k));
-  if (!hasAny) return '<div class="error-state">No bracket data.</div>';
+  if (!hasAny) return '<div class="error-state">No play-off data.</div>';
 
   const r16 = bracketRoundMatches(sections, '1/16');
   const r8 = bracketRoundMatches(sections, '1/8');
@@ -828,7 +833,7 @@ function render() {
   fetchGviz(id, 'GRID').then(rows => {
     const sections = parseGridSheet(rows);
     if (!sections.length) {
-      grid.innerHTML = '<div class="error-state">No bracket data for this day.</div>';
+      grid.innerHTML = '<div class="error-state">No play-off data for this day.</div>';
       return;
     }
 
@@ -853,7 +858,7 @@ function render() {
       (total > 1 ? `<div class="pagination" style="margin-top:2rem">${pageBtns.join('')}</div>` : '');
   }).catch(err => {
     console.warn('[bracket] fetch failed:', err);
-    grid.innerHTML = '<div class="error-state">Could not load bracket.</div>';
+    grid.innerHTML = '<div class="error-state">Could not load play-off.</div>';
   });
 }
 
