@@ -41,4 +41,24 @@ document.addEventListener('DOMContentLoaded', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
+
+  const storageConsentKey = 'esb_storage_consent_v1';
+  let hasStorageConsent = false;
+  try {
+    hasStorageConsent = localStorage.getItem(storageConsentKey) === 'accepted';
+  } catch (e) {}
+
+  if (!hasStorageConsent) {
+    const banner = document.createElement('div');
+    banner.className = 'storage-consent';
+    banner.innerHTML = `
+      <p><strong>Local storage notice.</strong> We use local browser storage to cache tournament data and improve loading speed. See our <a href="https://football.esportsbattle.com/en/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>
+      <button type="button">Got it</button>
+    `;
+    banner.querySelector('button').addEventListener('click', function () {
+      try { localStorage.setItem(storageConsentKey, 'accepted'); } catch (e) {}
+      banner.remove();
+    });
+    document.body.appendChild(banner);
+  }
 });
