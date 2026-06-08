@@ -1025,12 +1025,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('refreshBtn');
     if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
     try {
+      if (typeof window.invalidateTournamentGridCache === 'function') window.invalidateTournamentGridCache();
       const sources = await fetchFresh(SOURCES_URL).then(r => r.json());
       if (typeof initTournament === 'function') await initTournament(sources);
       await fetchAndUpdate(sources);
       dataReady = true;
       refreshSourceBar(); refreshMonthBar(); refreshFilterBar();
-      if (activeView === 'results') render();
+      if (activeView === 'results') render(true);
       else renderLeagues();
     } catch (e) {
       console.warn('Refresh failed:', e);
@@ -1041,8 +1042,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Auto-refresh — controlled by user via UI
   let autoRefreshTimer = null;
+  window.autoRefreshSeconds = 0;
   window.setAutoRefresh = function(seconds) {
     seconds = Number(seconds) || 0;
+    window.autoRefreshSeconds = seconds;
     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
     // Update button states
     document.querySelectorAll('.ar-btn').forEach(b => b.classList.remove('active'));
@@ -1057,13 +1060,13 @@ document.addEventListener('DOMContentLoaded', () => {
   window.setAutoRefresh(0);
 
   window.addEventListener('pageshow', event => {
-    if (event.persisted && typeof window.manualRefresh === 'function') {
+    if (event.persisted && window.autoRefreshSeconds > 0 && typeof window.manualRefresh === 'function') {
       window.manualRefresh();
     }
   });
 
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && typeof window.manualRefresh === 'function') {
+    if (!document.hidden && window.autoRefreshSeconds > 0 && typeof window.manualRefresh === 'function') {
       window.manualRefresh();
     }
   });

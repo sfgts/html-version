@@ -10,14 +10,14 @@ const FLAG_CODES = {
   'canada': 'ca', 'switzerland': 'ch', 'qatar': 'qa',
   'bosnia & herzegovina': 'ba', 'bosnia and herzegovina': 'ba', 'bosnia & herz.': 'ba',
   'brazil': 'br', 'morocco': 'ma', 'scotland': 'gb-sct', 'haiti': 'ht',
-  'united states': 'us', 'usa': 'us', 'australia': 'au', 'paraguay': 'py', 'turkey': 'tr',
-  'germany': 'de', 'ecuador': 'ec', 'ivory coast': 'ci', "cÃ´te d'ivoire": 'ci', 'curaÃ§ao': 'cw', 'curacao': 'cw',
+  'united states': 'us', 'usa': 'us', 'australia': 'au', 'paraguay': 'py', 'turkey': 'tr', 'turkiye': 'tr',
+  'germany': 'de', 'ecuador': 'ec', 'ivory coast': 'ci', "cote d'ivoire": 'ci', 'cote d ivoire': 'ci', "cÃ´te d'ivoire": 'ci', 'curaÃ§ao': 'cw', 'curacao': 'cw',
   'netherlands': 'nl', 'japan': 'jp', 'tunisia': 'tn', 'sweden': 'se',
-  'belgium': 'be', 'egypt': 'eg', 'iran': 'ir', 'new zealand': 'nz',
-  'spain': 'es', 'cape verde': 'cv', 'saudi arabia': 'sa', 'uruguay': 'uy',
+  'belgium': 'be', 'egypt': 'eg', 'iran': 'ir', 'ir iran': 'ir', 'new zealand': 'nz',
+  'spain': 'es', 'cape verde': 'cv', 'cabo verde': 'cv', 'saudi arabia': 'sa', 'uruguay': 'uy',
   'france': 'fr', 'senegal': 'sn', 'iraq': 'iq', 'norway': 'no',
   'argentina': 'ar', 'algeria': 'dz', 'austria': 'at', 'jordan': 'jo',
-  'portugal': 'pt', 'colombia': 'co', 'uzbekistan': 'uz', 'dr congo': 'cd',
+  'portugal': 'pt', 'colombia': 'co', 'uzbekistan': 'uz', 'dr congo': 'cd', 'congo dr': 'cd',
   'england': 'gb-eng', 'croatia': 'hr', 'panama': 'pa', 'ghana': 'gh',
   'korea republic': 'kr', 'republic of korea': 'kr',
 };
@@ -559,6 +559,35 @@ let tournamentDays    = []; // [{date, id}] newest first
 let tournamentDayIdx  = 0;
 let tournamentReady   = false;
 let tournamentError   = '';
+const bracketRowsCache = new Map();
+const bracketRowsPending = new Map();
+
+window.invalidateTournamentGridCache = function() {
+  bracketRowsCache.clear();
+  bracketRowsPending.clear();
+};
+
+function loadBracketRows(id, force = false) {
+  if (force) {
+    bracketRowsCache.delete(id);
+    bracketRowsPending.delete(id);
+  }
+  if (bracketRowsCache.has(id)) return Promise.resolve(bracketRowsCache.get(id));
+  if (bracketRowsPending.has(id)) return bracketRowsPending.get(id);
+
+  const pending = fetchGviz(id, 'GRID')
+    .then(rows => {
+      bracketRowsCache.set(id, rows);
+      bracketRowsPending.delete(id);
+      return rows;
+    })
+    .catch(err => {
+      bracketRowsPending.delete(id);
+      throw err;
+    });
+  bracketRowsPending.set(id, pending);
+  return pending;
+}
 
 // â”€â”€ renderLeagues â€” overrides the stub in players.js â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderLeagues() {
@@ -908,7 +937,7 @@ function buildBracketGrid(sections) {
 }
 
 // â”€â”€ render() â€” overrides players.js, shows bracket when Results tab active â”€â”€â”€â”€
-function render() {
+function render(forceRefresh = false) {
   const grid    = document.getElementById('resultsGrid');
   const countEl = document.getElementById('resultsCount');
   const lfPanel = document.getElementById('lfPanel');
@@ -933,7 +962,7 @@ function render() {
   const { id, date } = tournamentDays[safeIdx];
   const total        = tournamentDays.length;
 
-  fetchGviz(id, 'GRID').then(rows => {
+  loadBracketRows(id, forceRefresh).then(rows => {
     const sections = parseGridSheet(rows);
     if (!sections.length) {
       grid.innerHTML = '<div class="error-state">No play-off data for this day.</div>';

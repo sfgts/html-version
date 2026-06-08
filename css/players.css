@@ -820,10 +820,10 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 .ranking-note::after {
   content: '';
   position: absolute;
-  left: 0.7rem;
-  top: -0.15rem;
-  width: 0.85rem;
-  height: 2.4rem;
+  right: -0.2rem;
+  bottom: 0.75rem;
+  width: 10.8rem;
+  height: 0.8rem;
 }
 .ranking-note-btn {
   width: 0.82rem;
@@ -844,8 +844,8 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 }
 .ranking-tooltip {
   position: absolute;
-  left: calc(100% + 0.55rem);
-  top: -0.45rem;
+  right: -0.2rem;
+  bottom: calc(100% + 0.42rem);
   width: min(10.5rem, 62vw);
   padding: 0.48rem 0.55rem;
   border: 1px solid oklch(0.86 0.18 82 / 0.62);
@@ -861,19 +861,20 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
     0 14px 30px oklch(0 0 0 / 0.45);
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-0.25rem);
+  transform: translateY(0.25rem);
   transition: opacity 0.15s, transform 0.15s;
   z-index: 40;
 }
 .ranking-tooltip::before {
   content: '';
   position: absolute;
-  left: -0.27rem;
-  top: 0.62rem;
+  right: 0.32rem;
+  bottom: -0.27rem;
   width: 0.5rem;
   height: 0.5rem;
-  border-left: 1px solid oklch(0.86 0.18 82 / 0.62);
+  border-right: 1px solid oklch(0.86 0.18 82 / 0.62);
   border-bottom: 1px solid oklch(0.86 0.18 82 / 0.62);
+  border-left: 0;
   border-top: 0;
   background: oklch(0.1 0.03 160 / 0.98);
   transform: rotate(45deg);
