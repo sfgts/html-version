@@ -336,6 +336,41 @@ function normGridCell(value) {
   return String(value ?? '').toLowerCase().replace(/\s+/g, '').trim();
 }
 
+function normTeamName(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function scoreAvailable(m) {
+  return m.score1 !== '' && m.score2 !== ''
+    && !isNaN(+m.score1) && !isNaN(+m.score2);
+}
+
+function winnerOverrideSide(m) {
+  const winner = normTeamName(m.winner);
+  if (!winner) return 0;
+  if (winner === normTeamName(m.team1)) return 1;
+  if (winner === normTeamName(m.team2)) return 2;
+  return 0;
+}
+
+function matchWinnerSide(m) {
+  if (!scoreAvailable(m)) return 0;
+  const s1 = +m.score1;
+  const s2 = +m.score2;
+  if (s1 > s2) return 1;
+  if (s2 > s1) return 2;
+  return winnerOverrideSide(m);
+}
+
+function isRankingDrawWin(m) {
+  return scoreAvailable(m) && +m.score1 === +m.score2 && winnerOverrideSide(m) > 0;
+}
+
 function parseGridSheet(rows) {
   const sections = [];
   let current    = null;
@@ -376,6 +411,7 @@ function parseGridSheet(rows) {
       half2:   String(row[7] ?? '').trim(),
       score1:  String(row[8] ?? '').trim(),
       score2:  String(row[9] ?? '').trim(),
+      winner:  String(row[11] ?? '').trim(),
     });
   }
 
@@ -730,13 +766,21 @@ async function initTournament(sources) {
 
 // â”€â”€ Single bracket match card (vertical: team on top, opponent on bottom) â”€â”€â”€â”€â”€
 function bracketCard(m) {
-  const hasScore = m.score1 !== '' && m.score2 !== ''
-    && !isNaN(+m.score1) && !isNaN(+m.score2);
+  const hasScore = scoreAvailable(m);
   const hasHT = m.half1 !== '' && m.half2 !== ''
     && !isNaN(+m.half1) && !isNaN(+m.half2);
   const isLive = hasHT && !hasScore;
-  const s1 = +m.score1, s2 = +m.score2;
-  const w1 = hasScore && s1 > s2, w2 = hasScore && s2 > s1;
+  const winnerSide = matchWinnerSide(m);
+  const w1 = winnerSide === 1;
+  const w2 = winnerSide === 2;
+  const rankingDrawWin = isRankingDrawWin(m);
+  const rankingNote = `<span class="ranking-note">
+    <button class="ranking-note-btn" type="button" aria-label="Ranking tiebreak information">i</button>
+    <span class="ranking-tooltip">
+      The match result is determined based on the outcome after 90 minutes of play. In the event of a draw, the result is recorded as a draw, while the team that advances to the next stage is determined by
+      <a href="https://inside.fifa.com/fifa-world-ranking/men" target="_blank" rel="noopener noreferrer">the world ranking of national teams</a>.
+    </span>
+  </span>`;
 
   const teamRow = (team, player, score, win, ht) => {
     const isTBD = !team || team.toUpperCase() === 'TBD';
@@ -759,6 +803,7 @@ function bracketCard(m) {
   };
 
   return `<div class="bcard${isLive ? ' bcard--live' : ''}">
+    ${rankingDrawWin ? rankingNote : ''}
     ${m.time ? `<div class="bcard-time">${m.time}</div>` : ''}
     ${teamRow(m.team1, m.player1, m.score1, w1, m.half1)}
     <div class="bcard-divider"></div>
@@ -768,12 +813,10 @@ function bracketCard(m) {
 
 // â”€â”€ Build bracket: sections left-to-right, connected by a single line â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function finalWinner(m) {
-  const hasScore = m.score1 !== '' && m.score2 !== ''
-    && !isNaN(+m.score1) && !isNaN(+m.score2);
-  if (!hasScore || +m.score1 === +m.score2) return null;
-  return +m.score1 > +m.score2
-    ? { team: m.team1, player: m.player1, score: m.score1 }
-    : { team: m.team2, player: m.player2, score: m.score2 };
+  const winnerSide = matchWinnerSide(m);
+  if (winnerSide === 1) return { team: m.team1, player: m.player1, score: m.score1 };
+  if (winnerSide === 2) return { team: m.team2, player: m.player2, score: m.score2 };
+  return null;
 }
 
 function championSpotlight(m) {
@@ -801,7 +844,7 @@ const ROUND_ORDER  = ['1/16','1/8','1/4','1/2','final'];
 const ROUND_COUNTS = { '1/16': 16, '1/8': 8, '1/4': 4, '1/2': 2, 'final': 1 };
 
 function tbdMatch() {
-  return { time: '', team1: 'TBD', team2: 'TBD', player1: '', player2: '', score1: '', score2: '', half1: '', half2: '' };
+  return { time: '', team1: 'TBD', team2: 'TBD', player1: '', player2: '', score1: '', score2: '', half1: '', half2: '', winner: '' };
 }
 
 function bracketRoundMatches(sections, key) {

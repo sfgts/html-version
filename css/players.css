@@ -504,13 +504,14 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
 .champion-spotlight {
   position: absolute;
   top: 9rem;
-  left: 0;
-  width: 100%;
+  left: 50%;
+  width: clamp(30rem, 36vw, 42rem);
   min-height: 150px;
   display: flex;
   align-items: center;
   padding-left: clamp(4.1rem, 6vw, 5.4rem);
   margin-bottom: 0;
+  transform: translateX(-50%);
 }
 
 .champion-trophy {
@@ -533,7 +534,7 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   border: 1px solid oklch(0.86 0.18 82);
   border-radius: 1rem;
   min-height: 118px;
-  padding: 1.45rem 1.2rem 1.35rem 2rem;
+  padding: 1.45rem 2rem 1.35rem;
   background:
     radial-gradient(circle at 14% 50%, oklch(0.86 0.18 82 / 0.24), transparent 38%),
     linear-gradient(135deg, oklch(0.82 0.16 82 / 0.2), oklch(0.12 0.04 160 / 0.96)),
@@ -552,12 +553,14 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   text-transform: uppercase;
   color: oklch(0.9 0.17 88);
   margin-bottom: 0.8rem;
+  text-align: center;
   text-shadow: 0 0 14px oklch(0.86 0.18 82 / 0.62);
 }
 
 .champion-main {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   min-width: 0;
 }
@@ -581,7 +584,7 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   font-weight: 900;
   line-height: 1;
   min-width: 0;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
   text-shadow: 0 0 16px oklch(0.86 0.18 82 / 0.35);
 }
 
@@ -680,14 +683,19 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   background: oklch(0.16 0.04 160 / 0.85);
   border: 1px solid var(--border);
   border-radius: 0.6rem;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   justify-content: center;
   backdrop-filter: blur(8px);
   transition: border-color 0.15s;
+  position: relative;
 }
 .bcard:hover { border-color: oklch(0.45 0.1 160); }
+.bcard:has(.ranking-note:hover),
+.bcard:has(.ranking-note:focus-within) {
+  z-index: 30;
+}
 
 .bcard--live {
   border-color: oklch(0.78 0.18 58 / 0.9);
@@ -799,6 +807,89 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   color: var(--foreground);
 }
 .bcard-row.win .bcard-score { color: var(--primary); }
+
+.ranking-note {
+  position: absolute;
+  top: 0.28rem;
+  right: 0.34rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 35;
+}
+.ranking-note::after {
+  content: '';
+  position: absolute;
+  left: 0.7rem;
+  top: -0.15rem;
+  width: 0.85rem;
+  height: 2.4rem;
+}
+.ranking-note-btn {
+  width: 0.82rem;
+  height: 0.82rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(0.86 0.18 82 / 0.9);
+  background: oklch(0.86 0.18 82 / 0.16);
+  color: oklch(0.9 0.17 88);
+  font-size: 0.5rem;
+  font-weight: 900;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  padding: 0;
+  box-shadow: 0 0 10px oklch(0.86 0.18 82 / 0.32);
+}
+.ranking-tooltip {
+  position: absolute;
+  left: calc(100% + 0.55rem);
+  top: -0.45rem;
+  width: min(10.5rem, 62vw);
+  padding: 0.48rem 0.55rem;
+  border: 1px solid oklch(0.86 0.18 82 / 0.62);
+  border-radius: 0.55rem;
+  background: oklch(0.1 0.03 160 / 0.98);
+  color: var(--foreground);
+  font-size: 0.52rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow:
+    0 0 22px oklch(0.86 0.18 82 / 0.26),
+    0 14px 30px oklch(0 0 0 / 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.25rem);
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 40;
+}
+.ranking-tooltip::before {
+  content: '';
+  position: absolute;
+  left: -0.27rem;
+  top: 0.62rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-left: 1px solid oklch(0.86 0.18 82 / 0.62);
+  border-bottom: 1px solid oklch(0.86 0.18 82 / 0.62);
+  border-top: 0;
+  background: oklch(0.1 0.03 160 / 0.98);
+  transform: rotate(45deg);
+}
+.ranking-tooltip a {
+  color: oklch(0.9 0.17 88);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.ranking-note:hover .ranking-tooltip,
+.ranking-note:focus-within .ranking-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
 
 /* ── Refresh button ─────────────────────────────────────────────────────────── */
 .refresh-btn {
