@@ -822,7 +822,7 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   position: absolute;
   right: -0.2rem;
   bottom: 0.75rem;
-  width: 10.8rem;
+  width: 20.5rem;
   height: 0.8rem;
 }
 .ranking-note-btn {
@@ -846,15 +846,15 @@ td.pts-cell { font-size: 1rem; font-weight: 900; color: var(--primary); text-ali
   position: absolute;
   right: -0.2rem;
   bottom: calc(100% + 0.42rem);
-  width: min(10.5rem, 62vw);
-  padding: 0.48rem 0.55rem;
+  width: min(21rem, 82vw);
+  padding: 0.85rem 1rem;
   border: 1px solid oklch(0.86 0.18 82 / 0.62);
   border-radius: 0.55rem;
   background: oklch(0.1 0.03 160 / 0.98);
   color: var(--foreground);
-  font-size: 0.52rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.45;
   text-align: left;
   box-shadow:
     0 0 22px oklch(0.86 0.18 82 / 0.26),
