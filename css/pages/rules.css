@@ -58,6 +58,27 @@
   line-height: 1.7;
 }
 
+.rules-section p + p {
+  margin-top: 0.75rem;
+}
+
+.rules-section a {
+  color: var(--primary);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.rules-section a:hover {
+  color: var(--foreground);
+}
+
+.rules-section--tiebreaker {
+  border-color: oklch(0.68 0.16 145 / 0.55);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
 .rules-section ul,
 .rules-section ol {
   display: flex;
