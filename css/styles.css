@@ -87,7 +87,9 @@ nav a svg { width: 1rem; height: 1rem; }
 .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
 
 .hero { padding: 1.5rem 1.5rem 4rem; max-width: 1280px; margin: 0 auto; }
-@media (min-width: 768px) { .hero { padding: 2rem 1.5rem 5rem; } }
+@media (min-width: 768px) {
+  .hero { padding: 2rem 1.5rem 5rem; }
+}
 .hero-inner { max-width: 48rem; }
 .badge {
   display: inline-flex; align-items: center; gap: 0.5rem;
@@ -108,6 +110,10 @@ nav a svg { width: 1rem; height: 1rem; }
 }
 .hero h1 span { color: var(--primary); }
 .hero p { margin-top: 1.5rem; font-size: 1.125rem; color: var(--muted-foreground); max-width: 42rem; line-height: 1.7; }
+@media (min-width: 768px) {
+  .hero h1 { font-size: clamp(2.75rem, 4.5vw, 3.5rem); }
+  .hero p { font-size: 1rem; }
+}
 
 .video-section { padding-bottom: 5rem; }
 .video-wrapper {
