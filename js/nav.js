@@ -4,23 +4,34 @@ document.addEventListener('DOMContentLoaded', function () {
   const nav = document.querySelector('nav');
 
   if (btn && nav) {
+    function closeMenu() {
+      btn.classList.remove('open');
+      nav.classList.remove('open');
+      document.body.classList.remove('nav-open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    btn.setAttribute('aria-expanded', 'false');
     btn.addEventListener('click', function () {
-      btn.classList.toggle('open');
-      nav.classList.toggle('open');
+      const willOpen = !nav.classList.contains('open');
+      btn.classList.toggle('open', willOpen);
+      nav.classList.toggle('open', willOpen);
+      document.body.classList.toggle('nav-open', willOpen);
+      btn.setAttribute('aria-expanded', String(willOpen));
     });
 
     nav.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function () {
-        btn.classList.remove('open');
-        nav.classList.remove('open');
-      });
+      a.addEventListener('click', closeMenu);
     });
 
     document.addEventListener('click', function (e) {
       if (!btn.contains(e.target) && !nav.contains(e.target)) {
-        btn.classList.remove('open');
-        nav.classList.remove('open');
+        closeMenu();
       }
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 768) closeMenu();
     });
   }
 

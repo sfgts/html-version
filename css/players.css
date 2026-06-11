@@ -1280,7 +1280,6 @@ a.live-spotlight { text-decoration: none; color: inherit; }
   .results-hero h1 { font-size: 1.6rem; }
   .view-tab { padding: 0.4rem 0.9rem; font-size: 0.7rem; }
 }
-}
 
 /* Photo */
 .sp-photo-wrap {
@@ -1367,4 +1366,111 @@ a.live-spotlight { text-decoration: none; color: inherit; }
 @media (max-width: 480px) {
   .players-grid { grid-template-columns: 1fr !important; }
   .view-tab { padding: 0.4rem 0.9rem; font-size: 0.7rem; }
+}
+
+/* Final mobile overrides */
+@media (max-width: 767px) {
+  .results-hero {
+    max-width: 100%;
+    padding: 1.5rem 1rem 1.25rem;
+  }
+  .results-hero h1 {
+    margin-top: 0.75rem;
+    font-size: 2rem;
+    overflow-wrap: anywhere;
+  }
+  .results-hero p {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .view-tabs {
+    width: 100%;
+    align-items: stretch;
+  }
+  .view-tab { flex: 1 1 auto; justify-content: center; }
+  .ar-group {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+  }
+
+  .league-block { overflow: hidden; }
+  .league-table { width: 100%; table-layout: fixed; }
+  .league-table th:first-child,
+  .league-table td:first-child { width: 1.8rem; }
+  .league-table th:last-child,
+  .league-table td:last-child { width: 2.5rem; }
+  .team-cell { min-width: 0; }
+  .team-cell span { overflow-wrap: anywhere; }
+
+  .bracket-view {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+  .bracket-track--split {
+    width: max-content;
+    min-width: 1740px;
+    gap: 0.75rem;
+  }
+  .bracket-side {
+    flex: none;
+    width: 680px;
+    grid-template-columns: repeat(4, 155px);
+    gap: 0.75rem;
+  }
+  .bracket-final {
+    flex: 0 0 210px;
+    min-width: 210px;
+  }
+  .champion-spotlight {
+    top: 7rem;
+    width: 20rem;
+    min-height: 112px;
+    padding-left: 3.4rem;
+  }
+  .champion-trophy {
+    left: -1.2rem;
+    width: 5.5rem;
+  }
+  .champion-card {
+    min-height: 92px;
+    padding: 1rem 1.1rem;
+  }
+  .champion-kicker {
+    margin-bottom: 0.5rem;
+    font-size: 0.62rem;
+  }
+  .champion-main { gap: 0.5rem; }
+  .champion-flag { width: 34px; }
+  .champion-team {
+    max-width: 13rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+    font-size: 1.25rem;
+    line-height: 1.1;
+  }
+
+  .modal-card {
+    width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+    flex-direction: column-reverse;
+    overflow-y: auto;
+  }
+  .modal-photo-col {
+    width: 100%;
+    min-height: 220px;
+    flex: 0 0 220px;
+  }
+  .modal-stats-col { padding: 1.1rem; overflow: visible; }
+  .modal-player-name { padding-right: 2.25rem; font-size: 1.55rem; }
+  .modal-stats-row { gap: 0.5rem; }
+  .modal-stat { padding: 0.75rem 0.25rem; }
+  .modal-stat-val { font-size: 1.6rem; }
+  .modal-tour-row { align-items: flex-start; flex-wrap: wrap; }
+  .modal-tour-wdl { width: 100%; margin-left: 0; }
 }
