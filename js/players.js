@@ -86,9 +86,29 @@ function normTime(t) {
   return p[0].padStart(2, '0') + ':' + (p[1] || '00').padStart(2, '0');
 }
 
+const RESULTS_PHOTO_FILES = {
+  asura: 'asura.png',
+  aveaaaaa: 'aveaaaaa.png',
+  choko: 'Choko.png',
+  file: 'File.png',
+  futshadowz: 'FutShadowz.png',
+  jankulovski: 'Jankulovski.png',
+  jokadinho: 'Jokadinho.png',
+  kot: 'Kot.png',
+  ledjo: 'Ledjo.png',
+  mica22: 'mica22.png',
+  mp12jm: 'mp12jm.png',
+  noen: 'noeN.png',
+  pecata1505: 'pecata1505.png',
+  pex: 'pex.png',
+  ssstasonn: 'ssstasonn.png',
+  steeffant: 'steeffant.png',
+};
+
 function playerPhotoSrc(name) {
-  const fileName = String(name || '').trim().toLowerCase();
-  return `../assets/players/${fileName}.png`;
+  const key = String(name || '').trim().toLowerCase();
+  const fileName = RESULTS_PHOTO_FILES[key] || `${key}.png`;
+  return `../assets/players/${fileName}`;
 }
 
 function playerPlaceholderSrc() {
