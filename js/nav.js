@@ -1,5 +1,17 @@
 // Shared navigation and scroll controls across all pages.
 document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('img').forEach(function (image) {
+    image.draggable = false;
+  });
+
+  document.addEventListener('contextmenu', function (event) {
+    if (event.target.closest('img')) event.preventDefault();
+  });
+
+  document.addEventListener('dragstart', function (event) {
+    if (event.target.closest('img')) event.preventDefault();
+  });
+
   const btn = document.getElementById('hamburger');
   const nav = document.querySelector('nav');
 

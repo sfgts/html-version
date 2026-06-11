@@ -103,10 +103,36 @@
   </section>
 
   <section class="video-section container">
-    <div class="video-wrapper">
-      <video autoplay muted loop controls playsinline preload="auto" poster="assets/promo-poster.jpg" data-promo-video>
+    <div class="video-wrapper" data-video-player>
+      <video autoplay muted loop playsinline preload="auto" poster="assets/promo-poster.jpg"
+        controlslist="nodownload noremoteplayback" disablepictureinpicture disableremoteplayback
+        draggable="false" data-promo-video>
         <source src="assets/promo.mp4?v=20260611" type="video/mp4">
       </video>
+      <button class="video-center-play" type="button" data-video-toggle aria-label="Play video">
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </button>
+      <div class="video-controls">
+        <input class="video-progress" type="range" min="0" max="1000" value="0" step="1" data-video-progress aria-label="Video progress">
+        <div class="video-controls-row">
+          <button class="video-control-btn" type="button" data-video-toggle aria-label="Pause video">
+            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+          </button>
+          <button class="video-control-btn" type="button" data-video-mute aria-label="Unmute video">
+            <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8.5 8.5 0 0 1 0 12"/></svg>
+            <svg class="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m16 9 5 5"/><path d="m21 9-5 5"/></svg>
+          </button>
+          <input class="video-volume" type="range" min="0" max="1" value="1" step="0.05" data-video-volume aria-label="Volume">
+          <span class="video-time"><span data-video-current>0:00</span> / <span data-video-duration>0:00</span></span>
+          <button class="video-control-btn video-fullscreen-btn" type="button" data-video-fullscreen aria-label="Enter fullscreen">
+            <svg class="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5"/><path d="m3 3 6 6"/><path d="M16 3h5v5"/><path d="m21 3-6 6"/><path d="M8 21H3v-5"/><path d="m3 21 6-6"/><path d="M16 21h5v-5"/><path d="m21 21-6-6"/></svg>
+            <svg class="icon-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9H4V4"/><path d="M4 9 9 4"/><path d="M15 9h5V4"/><path d="m20 9-5-5"/><path d="M9 15H4v5"/><path d="m4 15 5 5"/><path d="M15 15h5v5"/><path d="m20 15-5 5"/></svg>
+          </button>
+        </div>
+      </div>
       <div class="video-placeholder is-hidden">
         <div class="video-play-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -153,7 +179,7 @@
       <div class="stat-card stat-card--wide">
         <div class="value">07:00 / 16:00</div>
         <div class="label">Group Stage / Play-Off Start</div>
-        <div class="label label-sub">Group match - 12 min<br>Play-off match - 18 min</div>
+        <div class="label label-sub">Group match - 12 min<br>Play-off match - 12 min</div>
       </div>
       <div class="stat-card">
         <div class="value">12</div>
