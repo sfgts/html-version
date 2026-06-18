@@ -370,6 +370,28 @@ function scoreAvailable(m) {
     && !isNaN(+m.score1) && !isNaN(+m.score2);
 }
 
+function halfTimeAvailable(m) {
+  return m.half1 !== '' && m.half2 !== ''
+    && !isNaN(+m.half1) && !isNaN(+m.half2);
+}
+
+function isGroupMatchLive(m) {
+  return halfTimeAvailable(m) && !scoreAvailable(m);
+}
+
+function isGroupMatchUpcoming(m) {
+  return !scoreAvailable(m) && !halfTimeAvailable(m);
+}
+
+function nextGroupMatchTime(matches) {
+  const upcoming = matches
+    .filter(isGroupMatchUpcoming)
+    .map(m => normTime(m.time))
+    .filter(Boolean)
+    .sort();
+  return upcoming[0] || '';
+}
+
 function winnerOverrideSide(m) {
   const winner = normTeamName(m.winner);
   if (!winner) return 0;
@@ -443,14 +465,10 @@ function parseGridSheet(rows) {
 // no results â†’ '' | any result â†’ 'live' | all have results â†’ 'finished'
 function matchListStatus(matches) {
   if (!matches.length) return '';
-  const hasScore = m => m.score1 !== '' && m.score2 !== ''
-    && !isNaN(+m.score1) && !isNaN(+m.score2);
-  const hasHT = m => m.half1 !== '' && m.half2 !== ''
-    && !isNaN(+m.half1) && !isNaN(+m.half2);
-  const scored = matches.filter(hasScore);
-  if (matches.some(m => hasHT(m) && !hasScore(m))) return 'live';
+  const scored = matches.filter(scoreAvailable);
+  if (matches.some(isGroupMatchLive)) return 'live';
   const hasAnyData = matches.some(m =>
-    hasScore(m) || hasHT(m)
+    scoreAvailable(m) || halfTimeAvailable(m)
   );
   if (!hasAnyData)                      return '';
   if (scored.length === matches.length) return 'finished';
@@ -478,6 +496,7 @@ function groupStatus(group) {
 function renderGroupCard(group) {
   const { standings, matches, groupName } = group;
   const label = groupName.replace('Group', 'Group '); // "GroupA" â†’ "Group A"
+  const status = groupStatus(group);
 
   // Standings table
   const standingsHTML = standings.length
@@ -517,12 +536,12 @@ function renderGroupCard(group) {
     : `<div class="tg-placeholder">No team data found</div>`;
 
   // Match rows
+  const nextTime = status === 'live' ? nextGroupMatchTime(matches) : '';
   const matchRowsHTML = matches.map(m => {
-    const hasScore = m.score1 !== '' && m.score2 !== ''
-      && !isNaN(+m.score1) && !isNaN(+m.score2);
-    const hasHT = m.half1 !== '' && m.half2 !== ''
-      && !isNaN(+m.half1) && !isNaN(+m.half2);
-    const isLive = hasHT && !hasScore; // half-time entered, final not yet
+    const hasScore = scoreAvailable(m);
+    const hasHT = halfTimeAvailable(m);
+    const isLive = isGroupMatchLive(m); // half-time entered, final not yet
+    const isNext = !isLive && nextTime && isGroupMatchUpcoming(m) && normTime(m.time) === nextTime;
 
     const s1 = +m.score1, s2 = +m.score2;
     const w1 = hasScore && s1 > s2;
@@ -538,8 +557,8 @@ function renderGroupCard(group) {
       scoreHTML = `<span class="tgm-ft">-:-</span>`;
     }
 
-    return `<div class="tgroup-match${isLive ? ' match-live' : ''}">
-      <span class="tgm-time">${m.time}</span>
+    return `<div class="tgroup-match${isLive ? ' match-live' : ''}${isNext ? ' match-next' : ''}${hasScore ? ' match-done' : ''}">
+      <span class="tgm-time">${m.time}${isNext ? '<span class="tgm-next">Next</span>' : ''}${hasScore ? '<span class="tgm-done">Done</span>' : ''}</span>
       <div class="tgm-side">
         <span class="tgm-player${w1 ? ' winner' : ''}">${m.player1}</span>
         <span class="tgm-team">${flagImg(m.team1, 'left')}${m.team1}</span>
@@ -554,7 +573,6 @@ function renderGroupCard(group) {
     </div>`;
   }).join('');
 
-  const status = groupStatus(group);
   const badgeHTML = status === 'live'
     ? `<span class="match-status live tg-badge"><span class="status-dot"></span>IN PROGRESS</span>`
     : status === 'finished'
@@ -569,7 +587,7 @@ function renderGroupCard(group) {
       <div class="league-block-name">${label}</div>
       ${badgeHTML}
     </div>
-    ${standingsHTML}
+    <div class="league-standings-wrap">${standingsHTML}</div>
     ${matchRowsHTML ? `<div class="tgroup-matches">${matchRowsHTML}</div>` : ''}
   </div>`;
 }
@@ -609,6 +627,108 @@ function loadBracketRows(id, force = false) {
   return pending;
 }
 
+let tournamentDateFilterWired = false;
+
+function normalizeTournamentDayIndex() {
+  if (!tournamentDays.length) {
+    tournamentDayIdx = 0;
+    return 0;
+  }
+  tournamentDayIdx = Math.max(0, Math.min(Number(tournamentDayIdx) || 0, tournamentDays.length - 1));
+  return tournamentDayIdx;
+}
+
+function closeTournamentDateFilter() {
+  const shell = document.getElementById('tournamentDateFilter');
+  const toggle = document.getElementById('dateFilterToggle');
+  if (shell) shell.classList.remove('is-open');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+}
+
+function updateTournamentDateFilter() {
+  const shell = document.getElementById('tournamentDateFilter');
+  const label = document.getElementById('dateFilterCurrent');
+  const menu = document.getElementById('dateFilterMenu');
+  if (!shell || !label || !menu) return;
+
+  if (!tournamentReady || !tournamentDays.length) {
+    shell.hidden = true;
+    closeTournamentDateFilter();
+    return;
+  }
+
+  const selectedIdx = normalizeTournamentDayIndex();
+  shell.hidden = false;
+  label.textContent = tournamentDays[selectedIdx]?.date || '--.--.----';
+  menu.replaceChildren();
+
+  tournamentDays.forEach((day, idx) => {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.className = `date-filter-option${idx === selectedIdx ? ' active' : ''}`;
+    option.dataset.index = String(idx);
+    option.setAttribute('role', 'option');
+    option.setAttribute('aria-selected', idx === selectedIdx ? 'true' : 'false');
+    option.textContent = day.date;
+    menu.appendChild(option);
+  });
+}
+
+function renderActiveTournamentView(forceRefresh = false) {
+  if (typeof activeView !== 'undefined' && activeView === 'results') render(forceRefresh);
+  else renderLeagues();
+}
+
+function tournamentGoDay(idx, shouldScroll = true) {
+  tournamentDayIdx = idx;
+  updateTournamentDateFilter();
+  renderActiveTournamentView();
+
+  if (!shouldScroll) return;
+  const sectionId = (typeof activeView !== 'undefined' && activeView === 'results')
+    ? 'resultsSection'
+    : 'leaguesSection';
+  const sec = document.getElementById(sectionId);
+  if (sec) window.scrollTo({ top: sec.offsetTop - 80, behavior: 'smooth' });
+}
+
+function wireTournamentDateFilter() {
+  if (tournamentDateFilterWired) {
+    updateTournamentDateFilter();
+    return;
+  }
+
+  const shell = document.getElementById('tournamentDateFilter');
+  const toggle = document.getElementById('dateFilterToggle');
+  const menu = document.getElementById('dateFilterMenu');
+  if (!shell || !toggle || !menu) return;
+
+  tournamentDateFilterWired = true;
+
+  toggle.addEventListener('click', () => {
+    const willOpen = !shell.classList.contains('is-open');
+    shell.classList.toggle('is-open', willOpen);
+    toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
+
+  menu.addEventListener('click', event => {
+    const option = event.target.closest('.date-filter-option');
+    if (!option) return;
+    closeTournamentDateFilter();
+    tournamentGoDay(Number(option.dataset.index));
+  });
+
+  document.addEventListener('click', event => {
+    if (!shell.contains(event.target)) closeTournamentDateFilter();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeTournamentDateFilter();
+  });
+
+  updateTournamentDateFilter();
+}
+
 // â”€â”€ renderLeagues â€” overrides the stub in players.js â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderLeagues() {
   const container = document.getElementById('leaguesContainer');
@@ -619,15 +739,17 @@ function renderLeagues() {
   if (lfPanel) lfPanel.classList.add('is-hidden');
 
   if (!tournamentReady || !tournamentDays.length) {
+    updateTournamentDateFilter();
     container.innerHTML = tournamentError
       ? `<div class="error-state">${tournamentError}</div>`
       : '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
     return;
   }
 
-  const safeIdx     = Math.min(tournamentDayIdx, tournamentDays.length - 1);
+  const safeIdx     = normalizeTournamentDayIndex();
   const { date, id } = tournamentDays[safeIdx];
   const total        = tournamentDays.length;
+  updateTournamentDateFilter();
 
   // Show loading dots while fetching
   container.innerHTML = `<div class="loading-state">
@@ -675,15 +797,17 @@ function renderLeagues() {
     let html = `<div class="league-day-header">${date}</div>`;
 
     if (liveGroups.length) {
-      html += liveGroups.map(g => {
-        // Find matches that are "live" (have HT but no final score)
-        const liveMatches = g.matches.filter(m =>
-          m.half1 !== '' && m.half2 !== '' && !isNaN(+m.half1) && !isNaN(+m.half2) &&
-          (m.score1 === '' || m.score2 === '' || isNaN(+m.score1) || isNaN(+m.score2))
-        );
-        // If no live matches, fall back to all unfinished
-        const spotlight = liveMatches.length ? liveMatches
-          : g.matches.filter(m => m.score1 === '' || isNaN(+m.score1));
+      const liveRows = [];
+      const progressOnlyGroups = [];
+
+      liveGroups.forEach(g => {
+        // Only matches with half-time entered and no final score are "Now Playing".
+        // Finished matches and future empty matches stay inside the group card only.
+        const liveMatches = g.matches.filter(isGroupMatchLive);
+        if (!liveMatches.length) {
+          progressOnlyGroups.push(g);
+          return;
+        }
 
         function spPlayerCard(name, team) {
           const code = flagCodeFor(team);
@@ -705,8 +829,8 @@ function renderLeagues() {
           </div>`;
         }
 
-        const spotlightBlocks = spotlight.map(m => {
-          const hasHT = m.half1 !== '' && !isNaN(+m.half1);
+        const spotlightBlocks = liveMatches.map(m => {
+          const hasHT = halfTimeAvailable(m);
           return `<div class="live-spotlight">
             <div class="sp-title">Now Playing</div>
             <div class="sp-match">
@@ -721,11 +845,16 @@ function renderLeagues() {
           </div>`;
         }).join('');
 
-        return `<div class="live-group-row">
+        liveRows.push(`<div class="live-group-row">
           <div class="live-group-card">${renderGroupCard(g)}</div>
           <div class="live-spotlights">${spotlightBlocks}</div>
-        </div>`;
-      }).join('');
+        </div>`);
+      });
+
+      html += liveRows.join('');
+      if (progressOnlyGroups.length) {
+        html += `<div class="tournament-groups-grid">${progressOnlyGroups.map(g => renderGroupCard(g)).join('')}</div>`;
+      }
     }
 
     if (finishedGroups.length) {
@@ -745,6 +874,7 @@ function renderLeagues() {
 
 window.leagueGoDay = function(idx) {
   tournamentDayIdx = idx;
+  updateTournamentDateFilter();
   renderLeagues();
   const sec = document.getElementById('leaguesSection');
   if (sec) window.scrollTo({ top: sec.offsetTop - 80, behavior: 'smooth' });
@@ -795,6 +925,7 @@ async function initTournament(sources) {
 
     tournamentReady = true;
     tournamentError = '';
+    wireTournamentDateFilter();
 
     if (typeof activeView !== 'undefined' && activeView === 'leagues') {
       renderLeagues();
@@ -967,6 +1098,7 @@ function render(forceRefresh = false) {
   document.getElementById('pagination')?.replaceChildren?.();
 
   if (!tournamentReady || !tournamentDays.length) {
+    updateTournamentDateFilter();
     if (grid) {
       grid.innerHTML = tournamentError
         ? `<div class="error-state">${tournamentError}</div>`
@@ -978,9 +1110,10 @@ function render(forceRefresh = false) {
   const dots = '<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>';
   if (grid) grid.innerHTML = `<div class="loading-state">${dots}</div>`;
 
-  const safeIdx      = Math.min(tournamentDayIdx, tournamentDays.length - 1);
+  const safeIdx      = normalizeTournamentDayIndex();
   const { id, date } = tournamentDays[safeIdx];
   const total        = tournamentDays.length;
+  updateTournamentDateFilter();
 
   loadBracketRows(id, forceRefresh).then(rows => {
     const sections = parseGridSheet(rows);
@@ -1016,6 +1149,7 @@ function render(forceRefresh = false) {
 
 window.bracketGoDay = function(idx) {
   tournamentDayIdx = idx;
+  updateTournamentDateFilter();
   render();
   const sec = document.getElementById('resultsSection');
   if (sec) window.scrollTo({ top: sec.offsetTop - 80, behavior: 'smooth' });
