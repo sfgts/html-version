@@ -595,6 +595,8 @@ function renderGroupCard(group) {
 // â”€â”€ Tournament state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let tournamentDays    = []; // [{date, id}] newest first
 let tournamentDayIdx  = 0;
+let tournamentDaySelectedManually = false;
+let selectedTournamentDate = null;
 let tournamentReady   = false;
 let tournamentError   = '';
 const bracketRowsCache = new Map();
@@ -629,12 +631,89 @@ function loadBracketRows(id, force = false) {
 
 let tournamentDateFilterWired = false;
 
+function tournamentDateNumber(date) {
+  const parts = String(date || '').split('.');
+  if (parts.length !== 3) return null;
+  const [dd, mm, yy] = parts.map(Number);
+  if (!dd || !mm || !yy) return null;
+  return yy * 10000 + mm * 100 + dd;
+}
+
+function kyivTodayDate() {
+  try {
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Kyiv',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(new Date()).replace(/\//g, '.');
+  } catch (e) {
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    return `${dd}.${mm}.${now.getFullYear()}`;
+  }
+}
+
+function calendarTournamentDayIndex(days) {
+  if (!days.length) return 0;
+
+  const todayNum = tournamentDateNumber(kyivTodayDate());
+  if (todayNum === null) return 0;
+
+  const exactIdx = days.findIndex(day => tournamentDateNumber(day.date) === todayNum);
+  if (exactIdx >= 0) return exactIdx;
+
+  let nearestFuture = { idx: -1, num: Infinity };
+  let latestPast = { idx: -1, num: -Infinity };
+
+  days.forEach((day, idx) => {
+    const num = tournamentDateNumber(day.date);
+    if (num === null) return;
+    if (num > todayNum && num < nearestFuture.num) nearestFuture = { idx, num };
+    if (num < todayNum && num > latestPast.num) latestPast = { idx, num };
+  });
+
+  if (nearestFuture.idx >= 0) return nearestFuture.idx;
+  if (latestPast.idx >= 0) return latestPast.idx;
+  return 0;
+}
+
+function syncTournamentDayWithCalendar() {
+  if (!tournamentDays.length) {
+    tournamentDayIdx = 0;
+    selectedTournamentDate = null;
+    tournamentDaySelectedManually = false;
+    return;
+  }
+
+  if (tournamentDaySelectedManually && selectedTournamentDate) {
+    const manualIdx = tournamentDays.findIndex(day => day.date === selectedTournamentDate);
+    if (manualIdx >= 0) {
+      tournamentDayIdx = manualIdx;
+      return;
+    }
+    tournamentDaySelectedManually = false;
+    selectedTournamentDate = null;
+  }
+
+  tournamentDayIdx = calendarTournamentDayIndex(tournamentDays);
+  selectedTournamentDate = tournamentDays[tournamentDayIdx]?.date || null;
+}
+
 function normalizeTournamentDayIndex() {
   if (!tournamentDays.length) {
     tournamentDayIdx = 0;
     return 0;
   }
   tournamentDayIdx = Math.max(0, Math.min(Number(tournamentDayIdx) || 0, tournamentDays.length - 1));
+  return tournamentDayIdx;
+}
+
+function setTournamentDayIndex(idx, manual = false) {
+  tournamentDayIdx = Math.max(0, Math.min(Number(idx) || 0, tournamentDays.length - 1));
+  selectedTournamentDate = tournamentDays[tournamentDayIdx]?.date || null;
+  if (manual) tournamentDaySelectedManually = true;
   return tournamentDayIdx;
 }
 
@@ -680,7 +759,7 @@ function renderActiveTournamentView(forceRefresh = false) {
 }
 
 function tournamentGoDay(idx, shouldScroll = true) {
-  tournamentDayIdx = idx;
+  setTournamentDayIndex(idx, true);
   updateTournamentDateFilter();
   renderActiveTournamentView();
 
@@ -873,7 +952,7 @@ function renderLeagues() {
 }
 
 window.leagueGoDay = function(idx) {
-  tournamentDayIdx = idx;
+  setTournamentDayIndex(idx, true);
   updateTournamentDateFilter();
   renderLeagues();
   const sec = document.getElementById('leaguesSection');
@@ -923,6 +1002,7 @@ async function initTournament(sources) {
       return ts(b.date) - ts(a.date);
     });
 
+    syncTournamentDayWithCalendar();
     tournamentReady = true;
     tournamentError = '';
     wireTournamentDateFilter();
@@ -1148,7 +1228,7 @@ function render(forceRefresh = false) {
 }
 
 window.bracketGoDay = function(idx) {
-  tournamentDayIdx = idx;
+  setTournamentDayIndex(idx, true);
   updateTournamentDateFilter();
   render();
   const sec = document.getElementById('resultsSection');

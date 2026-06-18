@@ -6,7 +6,7 @@
   <title>Players — World Cup 2026</title>
   <meta name="description" content="All players competing at the ESportsBattle FC26 Satellite 2026." />
   <link rel="icon" type="image/svg+xml" href="../assets/favico.ico" />
-  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=20260619-social" />
   <link rel="stylesheet" href="../css/players.css" />
   <link rel="stylesheet" href="../css/pages/players-list.css" />
 </head>
@@ -51,9 +51,15 @@
       </button>
       <div class="header-actions">
         <div class="social-links">
-          <a href="https://twitch.tv" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitch">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><path d="M11 7v5M16 7v5"/></svg>
-          </a>
+          <div class="social-dropdown">
+            <button class="social-btn social-dropdown-toggle" type="button" aria-label="Twitch links" aria-haspopup="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><path d="M11 7v5M16 7v5"/></svg>
+            </button>
+            <div class="social-dropdown-menu">
+              <a href="https://twitch.tv" target="_blank" rel="noopener noreferrer">Twitch 1</a>
+              <a href="https://twitch.tv" target="_blank" rel="noopener noreferrer">Twitch 2</a>
+            </div>
+          </div>
           <a href="https://www.facebook.com/ESportsBattle.Official" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Facebook">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
           </a>
@@ -140,6 +146,6 @@
     </svg>
   </button>
 <script src="../js/players-list.js"></script>
-  <script src="../js/nav.js"></script>
+  <script src="../js/nav.js?v=20260619-loader"></script>
 </body>
 </html>

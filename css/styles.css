@@ -87,6 +87,67 @@ nav a svg { width: 1rem; height: 1rem; }
 }
 .social-btn:hover { background: var(--primary); color: var(--primary-foreground); }
 .social-btn svg { width: 1rem; height: 1rem; }
+.social-dropdown {
+  position: relative;
+  display: flex;
+}
+.social-dropdown::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -0.5rem;
+  right: -0.5rem;
+  height: 0.55rem;
+}
+.social-dropdown-toggle {
+  border: 0;
+}
+.social-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 120;
+  min-width: 8.5rem;
+  padding: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: oklch(0.13 0.03 160 / 0.98);
+  box-shadow: 0 14px 34px oklch(0 0 0 / 0.38);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-0.3rem);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
+}
+.social-dropdown:hover .social-dropdown-menu,
+.social-dropdown:focus-within .social-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0s;
+}
+.social-dropdown-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.45rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.16s ease, background 0.16s ease;
+}
+.social-dropdown-menu a:hover,
+.social-dropdown-menu a:focus {
+  color: var(--primary);
+  background: oklch(0.82 0.22 145 / 0.09);
+}
 .divider { width: 1px; height: 1.5rem; background: var(--border); margin: 0 0.25rem; }
 
 .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
