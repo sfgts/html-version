@@ -1838,6 +1838,218 @@ a.live-spotlight { text-decoration: none; color: inherit; }
   .modal-tour-wdl { width: 100%; margin-left: 0; }
 }
 
+/* Desktop bracket spacing: visually groups each next-round card with its source pair. */
+@media (min-width: 900px) and (pointer: fine) {
+  .bracket-track--split {
+    --br-card-h: 5.85rem;
+    --br-inner-step: 6.45rem;
+    --br-pair-step: 16.3rem;
+    --br-r8-top: calc(var(--br-inner-step) / 2);
+    --br-r4-top: calc(var(--br-r8-top) + var(--br-pair-step) / 2);
+    --br-r2-top: calc(var(--br-r4-top) + var(--br-pair-step));
+    --br-label-gap: 1.35rem;
+    --br-stage-label-gap: 0.48rem;
+    --br-side-h: 62.8rem;
+    gap: 1.6rem;
+    min-height: 1060px;
+    width: calc(100vw - 1.2cm);
+  }
+
+  .bracket-side {
+    grid-template-columns: repeat(4, minmax(175px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .bracket-final {
+    flex-basis: clamp(280px, 20vw, 380px);
+  }
+
+  .bracket-track--split .bcol {
+    position: relative;
+  }
+
+  .bracket-track--split .bcol-r8 > .bcol-label,
+  .bracket-track--split .bcol-r4 > .bcol-label,
+  .bracket-track--split .bcol-r2 > .bcol-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding-bottom: 0.35rem;
+  }
+
+  .bracket-track--split .bcol-r8 > .bcol-label {
+    top: calc(var(--br-r8-top) - var(--br-stage-label-gap));
+  }
+
+  .bracket-track--split .bcol-r4 > .bcol-label {
+    top: calc(var(--br-r4-top) - var(--br-stage-label-gap));
+  }
+
+  .bracket-track--split .bcol-r2 > .bcol-label {
+    top: calc(var(--br-r2-top) - var(--br-stage-label-gap));
+  }
+
+  .bracket-track--split .bcol-final {
+    height: var(--br-side-h);
+    justify-content: flex-start;
+  }
+
+  .bracket-track--split .bcol-final > .bcol-label {
+    position: absolute;
+    top: calc(var(--br-r2-top) - var(--br-label-gap));
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 0 0.4rem 0.35rem;
+  }
+
+  .bracket-track--split .bcol-final .bcol-matches {
+    position: absolute;
+    top: var(--br-r2-top);
+    left: 0;
+    right: 0;
+  }
+
+  .bracket-track--split .bcol-label--minor {
+    text-align: center;
+    padding: 1.35rem 0.4rem 0.25rem;
+  }
+
+  .bracket-track--split .bcard {
+    height: var(--br-card-h);
+    min-height: var(--br-card-h);
+    overflow: visible;
+  }
+
+  .bracket-track--split .bcard-time {
+    padding-top: 0.28rem;
+    line-height: 1;
+  }
+
+  .bracket-track--split .bcard-row {
+    min-height: 1.75rem;
+    padding-top: 0.24rem;
+    padding-bottom: 0.24rem;
+    overflow: hidden;
+  }
+
+  .bracket-track--split .bcard-info {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .bracket-track--split .bcard-team,
+  .bracket-track--split .bcard-player {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bracket-track--split .bracket-side .bcol-matches {
+    position: relative;
+    flex: 0 0 var(--br-side-h);
+    height: var(--br-side-h);
+    min-height: var(--br-side-h);
+    padding: 0 !important;
+    gap: 0;
+    justify-content: flex-start;
+  }
+
+  .bracket-track--split .bracket-side .bcard {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+
+  .bracket-track--split .bcol-r16 .bcol-matches {
+    justify-content: flex-start;
+  }
+
+  .bracket-track--split .bcol-r16 .bcard:nth-child(1) { top: calc(var(--br-pair-step) * 0); }
+  .bracket-track--split .bcol-r16 .bcard:nth-child(2) { top: calc(var(--br-pair-step) * 0 + var(--br-inner-step)); }
+  .bracket-track--split .bcol-r16 .bcard:nth-child(3) { top: calc(var(--br-pair-step) * 1); }
+  .bracket-track--split .bcol-r16 .bcard:nth-child(4) { top: calc(var(--br-pair-step) * 1 + var(--br-inner-step)); }
+  .bracket-track--split .bcol-r16 .bcard:nth-child(5) { top: calc(var(--br-pair-step) * 2); }
+  .bracket-track--split .bcol-r16 .bcard:nth-child(6) { top: calc(var(--br-pair-step) * 2 + var(--br-inner-step)); }
+  .bracket-track--split .bcol-r16 .bcard:nth-child(7) { top: calc(var(--br-pair-step) * 3); }
+  .bracket-track--split .bcol-r16 .bcard:nth-child(8) { top: calc(var(--br-pair-step) * 3 + var(--br-inner-step)); }
+
+  .bracket-track--split .bcol-r8 .bcol-matches {
+    justify-content: flex-start;
+  }
+
+  .bracket-track--split .bcol-r8 .bcard:nth-child(1) { top: calc(var(--br-r8-top) + var(--br-pair-step) * 0); }
+  .bracket-track--split .bcol-r8 .bcard:nth-child(2) { top: calc(var(--br-r8-top) + var(--br-pair-step) * 1); }
+  .bracket-track--split .bcol-r8 .bcard:nth-child(3) { top: calc(var(--br-r8-top) + var(--br-pair-step) * 2); }
+  .bracket-track--split .bcol-r8 .bcard:nth-child(4) { top: calc(var(--br-r8-top) + var(--br-pair-step) * 3); }
+
+  .bracket-track--split .bcol-r4 .bcol-matches {
+    justify-content: flex-start;
+  }
+
+  .bracket-track--split .bcol-r4 .bcard:nth-child(1) { top: var(--br-r4-top); }
+  .bracket-track--split .bcol-r4 .bcard:nth-child(2) { top: calc(var(--br-r4-top) + var(--br-pair-step) * 2); }
+
+  .bracket-track--split .bcol-r2 .bcol-matches {
+    justify-content: flex-start;
+  }
+
+  .bracket-track--split .bcol-r2 .bcard:nth-child(1) { top: var(--br-r2-top); }
+
+  .bracket-track--split .bcol:not(.bcol-final) .bcard::after,
+  .bracket-track--split .bcol-r16 .bcard:nth-child(2n - 1)::before,
+  .bracket-track--split .bcol-r8 .bcard:nth-child(2n - 1)::before,
+  .bracket-track--split .bcol-r4 .bcard:nth-child(2n - 1)::before {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    border-color: oklch(0.82 0.22 145 / 0.46);
+    z-index: 0;
+  }
+
+  .bracket-track--split .bcol:not(.bcol-final) .bcard::after {
+    top: 50%;
+    width: 1.05rem;
+    border-top: 1px solid oklch(0.82 0.22 145 / 0.46);
+  }
+
+  .bracket-side--left .bcol:not(.bcol-final) .bcard::after {
+    right: -1.05rem;
+  }
+
+  .bracket-side--right .bcol:not(.bcol-final) .bcard::after {
+    left: -1.05rem;
+  }
+
+  .bracket-side--left .bcol-r16 .bcard:nth-child(2n - 1)::before,
+  .bracket-side--left .bcol-r8 .bcard:nth-child(2n - 1)::before,
+  .bracket-side--left .bcol-r4 .bcard:nth-child(2n - 1)::before {
+    top: 50%;
+    right: -1.05rem;
+    border-right: 1px solid oklch(0.82 0.22 145 / 0.46);
+  }
+
+  .bracket-side--right .bcol-r16 .bcard:nth-child(2n - 1)::before,
+  .bracket-side--right .bcol-r8 .bcard:nth-child(2n - 1)::before,
+  .bracket-side--right .bcol-r4 .bcard:nth-child(2n - 1)::before {
+    top: 50%;
+    left: -1.05rem;
+    border-left: 1px solid oklch(0.82 0.22 145 / 0.46);
+  }
+
+  .bracket-track--split .bcol-r16 .bcard:nth-child(2n - 1)::before {
+    height: var(--br-inner-step);
+  }
+
+  .bracket-track--split .bcol-r8 .bcard:nth-child(2n - 1)::before {
+    height: var(--br-pair-step);
+  }
+
+  .bracket-track--split .bcol-r4 .bcard:nth-child(2n - 1)::before {
+    height: calc(var(--br-pair-step) * 2);
+  }
+}
+
 /* Results mobile repair: keep this block last so older mobile rules cannot override it. */
 @media (max-width: 767px) {
   .leagues-section,
@@ -2105,7 +2317,7 @@ a.live-spotlight { text-decoration: none; color: inherit; }
   }
 }
 
-/* Phones in landscape are wider than 767px, but still need the mobile Play-Off layout. */
+/* Phones in landscape are wider than 767px, but still need the mobile Knockout bracket layout. */
 @media (orientation: landscape) and (max-height: 560px) and (pointer: coarse) {
   .leagues-section,
   .results-section {

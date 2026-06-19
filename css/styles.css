@@ -91,6 +91,9 @@ nav a svg { width: 1rem; height: 1rem; }
   position: relative;
   display: flex;
 }
+.social-dropdown--twitch {
+  display: none;
+}
 .social-dropdown::after {
   content: '';
   position: absolute;

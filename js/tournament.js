@@ -362,7 +362,8 @@ function parseGroupSheet(rows, groupName) {
 // â”€â”€ Parse GRID sheet â†’ bracket sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Sheet structure is fixed:
 // B = time, C = Team1, D = Team2, E = Player1, F = Player2,
-// G/H = half time, I/J = result. Round headers are in C.
+// G/H = half time, I/J = result. P = official bracket match position.
+// Round headers are in C.
 const BRACKET_ROUNDS = ['1/16','1/8','1/4','1/2','final'];
 const BRACKET_LABELS = { '1/16':'Round of 16','1/8':'Round of 8','1/4':'Quarter-finals','1/2':'Semi-finals','final':'Final' };
 
@@ -377,6 +378,11 @@ function normTeamName(value) {
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function normalizeMatchPos(value) {
+  const match = String(value ?? '').trim().toUpperCase().match(/^M\d{2,3}$/);
+  return match ? match[0] : '';
 }
 
 function scoreAvailable(m) {
@@ -468,6 +474,7 @@ function parseGridSheet(rows) {
       score1:  String(row[8] ?? '').trim(),
       score2:  String(row[9] ?? '').trim(),
       winner:  String(row[11] ?? '').trim(),
+      matchPos: normalizeMatchPos(row[15]),
     });
   }
 
@@ -1165,7 +1172,7 @@ async function initTournament(sources) {
 
 // â”€â”€ Single bracket match card (vertical: team on top, opponent on bottom) â”€â”€â”€â”€â”€
 function bracketCard(m) {
-  const matchId = registerMatchCenter(m, { stage: 'Play-Off', round: m.round || 'Play-Off' });
+  const matchId = registerMatchCenter(m, { stage: 'Knockout bracket', round: m.round || 'Knockout bracket' });
   const hasScore = scoreAvailable(m);
   const hasHT = m.half1 !== '' && m.half2 !== ''
     && !isNaN(+m.half1) && !isNaN(+m.half2);
@@ -1174,6 +1181,7 @@ function bracketCard(m) {
   const w1 = winnerSide === 1;
   const w2 = winnerSide === 2;
   const rankingDrawWin = isRankingDrawWin(m);
+  const cardMeta = [m.time, m.matchPos].filter(Boolean).join(' / ');
   const rankingNote = `<span class="ranking-note">
     <button class="ranking-note-btn" type="button" aria-label="Ranking tiebreak information">i</button>
     <span class="ranking-tooltip">
@@ -1204,7 +1212,7 @@ function bracketCard(m) {
 
   return `<div class="bcard${isLive ? ' bcard--live' : ''}" data-match-center="${matchId}" tabindex="0" role="button" aria-label="Open match details">
     ${rankingDrawWin ? rankingNote : ''}
-    ${m.time ? `<div class="bcard-time">${m.time}</div>` : ''}
+    ${cardMeta ? `<div class="bcard-time">${cardMeta}</div>` : ''}
     ${teamRow(m.team1, m.player1, m.score1, w1, m.half1)}
     <div class="bcard-divider"></div>
     ${teamRow(m.team2, m.player2, m.score2, w2, m.half2)}
@@ -1242,9 +1250,27 @@ const ROUND_LABELS = { '1/16':'Round of 16','1/8':'Round of 8','1/4':'Quarter-fi
 const ROUND_ORDER  = ['1/16','1/8','1/4','1/2','final'];
 // Expected match count per round (used to fill TBD placeholders)
 const ROUND_COUNTS = { '1/16': 16, '1/8': 8, '1/4': 4, '1/2': 2, 'final': 1 };
+const OFFICIAL_BRACKET_LAYOUT = {
+  r16Left:  ['M74','M77','M73','M75','M83','M84','M81','M82'],
+  r8Left:   ['M89','M90','M93','M94'],
+  r4Left:   ['M97','M98'],
+  r2Left:   ['M101'],
+  r2Right:  ['M102'],
+  r4Right:  ['M99','M100'],
+  r8Right:  ['M91','M92','M95','M96'],
+  r16Right: ['M76','M78','M79','M80','M86','M88','M85','M87'],
+  final:    ['M104','M103'],
+};
+const MATCH_POS_ROUNDS = {
+  '1/16': [...OFFICIAL_BRACKET_LAYOUT.r16Left, ...OFFICIAL_BRACKET_LAYOUT.r16Right],
+  '1/8':  [...OFFICIAL_BRACKET_LAYOUT.r8Left, ...OFFICIAL_BRACKET_LAYOUT.r8Right],
+  '1/4':  [...OFFICIAL_BRACKET_LAYOUT.r4Left, ...OFFICIAL_BRACKET_LAYOUT.r4Right],
+  '1/2':  [...OFFICIAL_BRACKET_LAYOUT.r2Left, ...OFFICIAL_BRACKET_LAYOUT.r2Right],
+  final:  OFFICIAL_BRACKET_LAYOUT.final,
+};
 
-function tbdMatch() {
-  return { time: '', team1: 'TBD', team2: 'TBD', player1: '', player2: '', score1: '', score2: '', half1: '', half2: '', winner: '' };
+function tbdMatch(matchPos = '') {
+  return { time: '', team1: 'TBD', team2: 'TBD', player1: '', player2: '', score1: '', score2: '', half1: '', half2: '', winner: '', matchPos };
 }
 
 function bracketRoundMatches(sections, key) {
@@ -1254,6 +1280,156 @@ function bracketRoundMatches(sections, key) {
   const expected = ROUND_COUNTS[key] || matches.length;
   while (matches.length < expected) matches.push({ ...tbdMatch(), round: label });
   return matches;
+}
+
+function actualBracketMatches(sections, key) {
+  const section = sections.find(s => s.key === key);
+  const label = ROUND_LABELS[key] || key;
+  return section ? section.matches.map(m => ({ ...m, round: label })) : [];
+}
+
+function matchPosRoundKey(matchPos) {
+  for (const [roundKey, positions] of Object.entries(MATCH_POS_ROUNDS)) {
+    if (positions.includes(matchPos)) return roundKey;
+  }
+  return '';
+}
+
+function officialBracketMatches(sections) {
+  const byPos = new Map();
+  for (const section of sections) {
+    for (const match of section.matches || []) {
+      if (!match.matchPos || byPos.has(match.matchPos)) continue;
+      const roundKey = matchPosRoundKey(match.matchPos) || section.key;
+      byPos.set(match.matchPos, {
+        ...match,
+        round: ROUND_LABELS[roundKey] || section.label || match.round || 'Knockout bracket',
+      });
+    }
+  }
+  return byPos;
+}
+
+function officialMatchAt(byPos, matchPos) {
+  const roundKey = matchPosRoundKey(matchPos);
+  return byPos.get(matchPos) || {
+    ...tbdMatch(matchPos),
+    round: ROUND_LABELS[roundKey] || 'Knockout bracket',
+  };
+}
+
+function hasOfficialMatchPositions(sections) {
+  return sections.some(section => (section.matches || []).some(match => match.matchPos));
+}
+
+function buildOfficialBracketRounds(sections) {
+  const byPos = officialBracketMatches(sections);
+  return {
+    r16: [...OFFICIAL_BRACKET_LAYOUT.r16Left, ...OFFICIAL_BRACKET_LAYOUT.r16Right].map(pos => officialMatchAt(byPos, pos)),
+    r8: [...OFFICIAL_BRACKET_LAYOUT.r8Left, ...OFFICIAL_BRACKET_LAYOUT.r8Right].map(pos => officialMatchAt(byPos, pos)),
+    r4: [...OFFICIAL_BRACKET_LAYOUT.r4Left, ...OFFICIAL_BRACKET_LAYOUT.r4Right].map(pos => officialMatchAt(byPos, pos)),
+    r2: [...OFFICIAL_BRACKET_LAYOUT.r2Left, ...OFFICIAL_BRACKET_LAYOUT.r2Right].map(pos => officialMatchAt(byPos, pos)),
+    final: OFFICIAL_BRACKET_LAYOUT.final.map(pos => officialMatchAt(byPos, pos)),
+  };
+}
+
+function bracketTeamKeys(m) {
+  return [m?.team1, m?.team2]
+    .map(normTeamName)
+    .filter(key => key && key !== 'tbd');
+}
+
+function bracketWinnerKey(m) {
+  const winnerSide = matchWinnerSide(m);
+  if (winnerSide === 1) return normTeamName(m.team1);
+  if (winnerSide === 2) return normTeamName(m.team2);
+  return '';
+}
+
+function scoreMatchAgainstSource(matchKeys, sourceMatch) {
+  if (!sourceMatch || !matchKeys.length) return 0;
+  const winnerKey = bracketWinnerKey(sourceMatch);
+  if (winnerKey && matchKeys.includes(winnerKey)) return 4;
+  return bracketTeamKeys(sourceMatch).some(key => matchKeys.includes(key)) ? 1 : 0;
+}
+
+function scoreMatchForSlot(match, previousRound, slotIdx) {
+  const keys = bracketTeamKeys(match);
+  if (!keys.length) return 0;
+  const sourceA = previousRound[slotIdx * 2];
+  const sourceB = previousRound[slotIdx * 2 + 1];
+  const a = scoreMatchAgainstSource(keys, sourceA);
+  const b = scoreMatchAgainstSource(keys, sourceB);
+  if (a && b) return a + b + 4;
+  return a + b;
+}
+
+function orderRoundByPrevious(matches, expectedCount, previousRound, roundKey) {
+  const ordered = Array(expectedCount).fill(null);
+  const remaining = [];
+
+  matches.slice(0, expectedCount).forEach(match => {
+    let bestSlot = -1;
+    let bestScore = 0;
+
+    for (let slot = 0; slot < expectedCount; slot++) {
+      if (ordered[slot]) continue;
+      const score = scoreMatchForSlot(match, previousRound, slot);
+      if (score > bestScore) {
+        bestScore = score;
+        bestSlot = slot;
+      }
+    }
+
+    if (bestSlot >= 0 && bestScore >= 2) {
+      ordered[bestSlot] = match;
+    } else {
+      remaining.push(match);
+    }
+  });
+
+  remaining.forEach(match => {
+    const emptyIdx = ordered.findIndex(item => !item);
+    if (emptyIdx >= 0) ordered[emptyIdx] = match;
+  });
+
+  const label = ROUND_LABELS[roundKey] || matches[0]?.round || '';
+  return ordered.map(match => match || { ...tbdMatch(), round: label });
+}
+
+function buildOrderedBracketRounds(sections) {
+  const r16 = actualBracketMatches(sections, '1/16').slice(0, ROUND_COUNTS['1/16']);
+  while (r16.length < ROUND_COUNTS['1/16']) {
+    r16.push({ ...tbdMatch(), round: ROUND_LABELS['1/16'] });
+  }
+
+  const r8 = orderRoundByPrevious(
+    actualBracketMatches(sections, '1/8'),
+    ROUND_COUNTS['1/8'],
+    r16,
+    '1/8'
+  );
+  const r4 = orderRoundByPrevious(
+    actualBracketMatches(sections, '1/4'),
+    ROUND_COUNTS['1/4'],
+    r8,
+    '1/4'
+  );
+  const r2 = orderRoundByPrevious(
+    actualBracketMatches(sections, '1/2'),
+    ROUND_COUNTS['1/2'],
+    r4,
+    '1/2'
+  );
+  const final = orderRoundByPrevious(
+    actualBracketMatches(sections, 'final'),
+    ROUND_COUNTS.final,
+    r2,
+    'final'
+  );
+
+  const thirdPlace = actualBracketMatches(sections, 'final')[1] || { ...tbdMatch(), round: ROUND_LABELS.final };
+  return { r16, r8, r4, r2, final: [final[0], thirdPlace] };
 }
 
 function bracketColumn(label, matches, className = '') {
@@ -1315,7 +1491,7 @@ function bracketRoundTabs() {
     ['1/2', 'SF'],
     ['final', 'Final'],
   ];
-  return `<div class="bracket-mobile-tabs" aria-label="Play-off rounds">
+  return `<div class="bracket-mobile-tabs" aria-label="Knockout bracket rounds">
     ${tabs.map(([key, label], idx) => `<button class="bracket-mobile-tab${idx === 0 ? ' active' : ''}" type="button" data-mobile-round="${key}" onclick="setMobileBracketRound(this, '${key}')">${label}</button>`).join('')}
   </div>`;
 }
@@ -1323,13 +1499,11 @@ function bracketRoundTabs() {
 function buildBracketGrid(sections) {
   // Find first round that has actual data to determine if we have anything to show
   const hasAny = ROUND_ORDER.some(k => sections.find(s => s.key === k));
-  if (!hasAny) return emptyState('Play-off bracket is being prepared', 'Play-off matches will appear here as soon as the bracket sheet is filled.');
+  if (!hasAny) return emptyState('Knockout bracket is being prepared', 'Knockout bracket matches will appear here as soon as the bracket sheet is filled.');
 
-  const r16 = bracketRoundMatches(sections, '1/16');
-  const r8 = bracketRoundMatches(sections, '1/8');
-  const r4 = bracketRoundMatches(sections, '1/4');
-  const r2 = bracketRoundMatches(sections, '1/2');
-  const final = bracketRoundMatches(sections, 'final');
+  const { r16, r8, r4, r2, final } = hasOfficialMatchPositions(sections)
+    ? buildOfficialBracketRounds(sections)
+    : buildOrderedBracketRounds(sections);
 
   const left = [
     bracketColumn(ROUND_LABELS['1/16'], r16.slice(0, 8), 'bcol-r16'),
@@ -1397,7 +1571,7 @@ function render(forceRefresh = false) {
   loadBracketRows(id, forceRefresh).then(rows => {
     const sections = parseGridSheet(rows);
     latestTournamentHealth = {
-      view: 'Play-Off',
+      view: 'Knockout bracket',
       date,
       id,
       loaded: sections.length,
@@ -1405,7 +1579,7 @@ function render(forceRefresh = false) {
       failures: [],
     };
     if (!sections.length) {
-      grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Play-off bracket is being prepared', 'Play-off matches will appear here as soon as the bracket sheet is filled.');
+      grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Knockout bracket is being prepared', 'Knockout bracket matches will appear here as soon as the bracket sheet is filled.');
       return;
     }
 
@@ -1438,7 +1612,7 @@ function render(forceRefresh = false) {
   }).catch(err => {
     console.warn('[bracket] fetch failed:', err);
     latestTournamentHealth = {
-      view: 'Play-Off',
+      view: 'Knockout bracket',
       date,
       id,
       loaded: 0,

@@ -18,8 +18,8 @@
   <meta name="twitter:description" content="Live group standings, play-off brackets, match centers and champion history." />
   <meta name="twitter:image" content="http://wc26.esportsbattle.com/assets/social-preview.jpg?v=20260619" />
   <link rel="icon" type="image/svg+xml" href="../assets/favico.ico" />
-  <link rel="stylesheet" href="../css/styles.css?v=20260619-social" />
-  <link rel="stylesheet" href="../css/players.css?v=20260619-mobile-results-8" />
+  <link rel="stylesheet" href="../css/styles.css?v=20260619-social-2" />
+  <link rel="stylesheet" href="../css/players.css?v=20260619-mobile-results-25" />
   <link rel="stylesheet" href="../css/pages/results.css" />
 </head>
 <body id="top">
@@ -49,7 +49,7 @@
           </span>
           <div class="nav-dropdown-menu">
             <a href="#group" data-results-view="leagues">Group Stage</a>
-            <a href="#bracket" data-results-view="results">Play-Off</a>
+            <a href="#bracket" data-results-view="results">Knockout bracket</a>
           </div>
         </div>
         <a href="rules.html">
@@ -63,7 +63,7 @@
       </button>
       <div class="header-actions">
         <div class="social-links">
-          <div class="social-dropdown">
+          <div class="social-dropdown social-dropdown--twitch">
             <button class="social-btn social-dropdown-toggle" type="button" aria-label="Twitch links" aria-haspopup="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><path d="M11 7v5M16 7v5"/>
@@ -104,7 +104,7 @@
 
     <div class="view-tabs">
       <button class="view-tab active" data-view="leagues">Group Stage</button>
-      <button class="view-tab" data-view="results">Play-Off</button>
+      <button class="view-tab" data-view="results">Knockout bracket</button>
       <button id="refreshBtn" class="refresh-btn" data-manual-refresh title="Refresh data">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -223,7 +223,7 @@
   </button>
   <script src="../js/pages/results-page.js"></script>
   <script src="../js/players.js?v=20260619-results-upgrades-3"></script>
-  <script src="../js/tournament.js?v=20260619-player-standings-1"></script>
+  <script src="../js/tournament.js?v=20260619-knockout-labels-1"></script>
   <script src="../js/nav.js?v=20260619-loader"></script>
 </body>
 </html>
