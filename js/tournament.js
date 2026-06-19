@@ -313,6 +313,20 @@ function parseGroupSheet(rows, groupName) {
     if (isServiceMatchRow(matches[i])) matches.splice(i, 1);
   }
 
+  const playerByTeam = new Map();
+  for (const m of matches) {
+    [[m.team1, m.player1], [m.team2, m.player2]].forEach(([team, player]) => {
+      const key = normTeamName(team);
+      if (key && player && !playerByTeam.has(key)) playerByTeam.set(key, player);
+    });
+  }
+
+  standings.forEach(s => {
+    if (!String(s.player || '').trim()) {
+      s.player = playerByTeam.get(normTeamName(s.team)) || '';
+    }
+  });
+
   if (standings.length === 0 && matches.length > 0) {
     const teams = {};
     // First pass: register all teams in match order (preserves group order)
