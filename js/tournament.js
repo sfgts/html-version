@@ -538,6 +538,7 @@ function renderGroupCard(group) {
   // Match rows
   const nextTime = status === 'live' ? nextGroupMatchTime(matches) : '';
   const matchRowsHTML = matches.map(m => {
+    const matchId = registerMatchCenter(m, { stage: 'Group Stage', group: label });
     const hasScore = scoreAvailable(m);
     const hasHT = halfTimeAvailable(m);
     const isLive = isGroupMatchLive(m); // half-time entered, final not yet
@@ -557,7 +558,7 @@ function renderGroupCard(group) {
       scoreHTML = `<span class="tgm-ft">-:-</span>`;
     }
 
-    return `<div class="tgroup-match${isLive ? ' match-live' : ''}${isNext ? ' match-next' : ''}${hasScore ? ' match-done' : ''}">
+    return `<div class="tgroup-match${isLive ? ' match-live' : ''}${isNext ? ' match-next' : ''}${hasScore ? ' match-done' : ''}" data-match-center="${matchId}" tabindex="0" role="button" aria-label="Open match details">
       <span class="tgm-time">${m.time}${isNext ? '<span class="tgm-next">Next</span>' : ''}${hasScore ? '<span class="tgm-done">Done</span>' : ''}</span>
       <div class="tgm-side">
         <span class="tgm-player${w1 ? ' winner' : ''}">${m.player1}</span>
@@ -601,6 +602,117 @@ let tournamentReady   = false;
 let tournamentError   = '';
 const bracketRowsCache = new Map();
 const bracketRowsPending = new Map();
+const matchCenterStore = new Map();
+const DEBUG_RESULTS = new URLSearchParams(window.location.search).has('debug');
+let latestTournamentHealth = null;
+
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[ch]));
+}
+
+function registerMatchCenter(match, meta = {}) {
+  const id = `m${matchCenterStore.size + 1}`;
+  matchCenterStore.set(id, { ...match, ...meta });
+  return id;
+}
+
+function matchStatusLabel(m) {
+  if (scoreAvailable(m)) return 'Finished';
+  if (halfTimeAvailable(m)) return 'In Progress';
+  return 'Upcoming';
+}
+
+function matchCenterScore(m) {
+  if (scoreAvailable(m)) return `${esc(m.score1)} : ${esc(m.score2)}`;
+  if (halfTimeAvailable(m)) return `HT ${esc(m.half1)} : ${esc(m.half2)}`;
+  return '- : -';
+}
+
+function sideFlag(team, className) {
+  const code = flagCodeFor(team);
+  return code
+    ? `<img class="${className}" src="https://flagcdn.com/w80/${code}.png" alt="${esc(team)}">`
+    : `<span class="${className} ${className}--empty"></span>`;
+}
+
+function openMatchCenter(id) {
+  const m = matchCenterStore.get(id);
+  const modal = document.getElementById('matchModal');
+  const body = document.getElementById('matchModalBody');
+  if (!m || !modal || !body) return;
+
+  const winnerSide = matchWinnerSide(m);
+  const hasHT = halfTimeAvailable(m);
+  const rankingNote = isRankingDrawWin(m)
+    ? `<div class="mc-note">This tied play-off match advances by FIFA Ranking tiebreaker.</div>`
+    : '';
+
+  body.innerHTML = `<div class="mc-kicker">${esc(m.stage || 'Match Center')}</div>
+    <h2>${esc(m.round || m.group || 'Match Details')}</h2>
+    <div class="mc-status-row">
+      <span class="mc-status mc-status--${esc(matchStatusLabel(m).toLowerCase().replace(/\s+/g, '-'))}">${esc(matchStatusLabel(m))}</span>
+      ${m.date ? `<span>${esc(m.date)}</span>` : ''}
+      ${m.time ? `<span>${esc(m.time)}</span>` : ''}
+    </div>
+    <div class="mc-score">${matchCenterScore(m)}</div>
+    ${hasHT && scoreAvailable(m) ? `<div class="mc-half">Half time ${esc(m.half1)} : ${esc(m.half2)}</div>` : ''}
+    <div class="mc-sides">
+      <div class="mc-side${winnerSide === 1 ? ' winner' : ''}">
+        ${sideFlag(m.team1, 'mc-flag')}
+        <strong>${esc(m.team1 || 'TBD')}</strong>
+        <span>${esc(m.player1 || '')}</span>
+      </div>
+      <div class="mc-side${winnerSide === 2 ? ' winner' : ''}">
+        ${sideFlag(m.team2, 'mc-flag')}
+        <strong>${esc(m.team2 || 'TBD')}</strong>
+        <span>${esc(m.player2 || '')}</span>
+      </div>
+    </div>
+    ${rankingNote}`;
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+}
+
+function closeMatchCenter() {
+  const modal = document.getElementById('matchModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+}
+
+function emptyState(title, text) {
+  return `<div class="empty-state">
+    <div class="empty-state-icon">•</div>
+    <h3>${esc(title)}</h3>
+    <p>${esc(text)}</p>
+  </div>`;
+}
+
+function renderDataHealth(health) {
+  if (!DEBUG_RESULTS || !health) return '';
+  const failures = health.failures || [];
+  return `<details class="data-health" open>
+    <summary>Data health</summary>
+    <div class="data-health-grid">
+      <span>View</span><strong>${esc(health.view || '-')}</strong>
+      <span>Date</span><strong>${esc(health.date || '-')}</strong>
+      <span>Sheet ID</span><strong>${esc(health.id || '-')}</strong>
+      <span>Loaded</span><strong>${esc(health.loaded ?? 0)}</strong>
+      <span>Expected</span><strong>${esc(health.expected ?? '-')}</strong>
+      <span>Status</span><strong>${failures.length ? 'Check needed' : 'OK'}</strong>
+    </div>
+    ${failures.length ? `<ul>${failures.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
+  </details>`;
+}
 
 window.invalidateTournamentGridCache = function() {
   bracketRowsCache.clear();
@@ -813,6 +925,7 @@ function renderLeagues() {
   const container = document.getElementById('leaguesContainer');
   const lfPanel   = document.getElementById('lfPanel');
   if (!container) return;
+  matchCenterStore.clear();
 
   // Hide month/group filter panel â€” day navigation is inside the container
   if (lfPanel) lfPanel.classList.add('is-hidden');
@@ -843,13 +956,24 @@ function renderLeagues() {
       fetchGviz(id, g).then(rows => parseGroupSheet(rows, g))
     )
   ).then(results => {
+    const failures = results
+      .map((r, i) => r.status === 'rejected' ? `${TOURNAMENT_GROUPS[i]}: ${r.reason?.message || 'failed'}` : '')
+      .filter(Boolean);
     const groups = results
       .filter(r => r.status === 'fulfilled')
       .map(r => r.value)
       .filter(g => g.standings.length > 0 || g.matches.length > 0);
+    latestTournamentHealth = {
+      view: 'Group Stage',
+      date,
+      id,
+      loaded: groups.length,
+      expected: TOURNAMENT_GROUPS.length,
+      failures,
+    };
 
     if (!groups.length) {
-      container.innerHTML = '<div class="error-state">No group data for this day.</div>';
+      container.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Fixtures are being prepared', 'Group standings and match results will appear automatically once the tournament sheet is updated.');
       return;
     }
 
@@ -946,6 +1070,7 @@ function renderLeagues() {
       html += `<div class="tournament-groups-grid groups-grid--upcoming">${upcomingGroups.map(g => renderGroupCard(g)).join('')}</div>`;
     }
 
+    html += renderDataHealth(latestTournamentHealth);
     html += `<div class="pagination" style="margin-top:2.5rem">${pageBtns.join('')}</div>`;
     container.innerHTML = html;
   });
@@ -1026,6 +1151,7 @@ async function initTournament(sources) {
 
 // â”€â”€ Single bracket match card (vertical: team on top, opponent on bottom) â”€â”€â”€â”€â”€
 function bracketCard(m) {
+  const matchId = registerMatchCenter(m, { stage: 'Play-Off', round: m.round || 'Play-Off' });
   const hasScore = scoreAvailable(m);
   const hasHT = m.half1 !== '' && m.half2 !== ''
     && !isNaN(+m.half1) && !isNaN(+m.half2);
@@ -1062,7 +1188,7 @@ function bracketCard(m) {
     </div>`;
   };
 
-  return `<div class="bcard${isLive ? ' bcard--live' : ''}">
+  return `<div class="bcard${isLive ? ' bcard--live' : ''}" data-match-center="${matchId}" tabindex="0" role="button" aria-label="Open match details">
     ${rankingDrawWin ? rankingNote : ''}
     ${m.time ? `<div class="bcard-time">${m.time}</div>` : ''}
     ${teamRow(m.team1, m.player1, m.score1, w1, m.half1)}
@@ -1109,23 +1235,81 @@ function tbdMatch() {
 
 function bracketRoundMatches(sections, key) {
   const section = sections.find(s => s.key === key);
-  const matches = section ? [...section.matches] : [];
+  const label = ROUND_LABELS[key] || key;
+  const matches = section ? section.matches.map(m => ({ ...m, round: label })) : [];
   const expected = ROUND_COUNTS[key] || matches.length;
-  while (matches.length < expected) matches.push(tbdMatch());
+  while (matches.length < expected) matches.push({ ...tbdMatch(), round: label });
   return matches;
 }
 
 function bracketColumn(label, matches, className = '') {
-  return `<div class="bcol ${className}">
+  const roundKey = Object.keys(ROUND_LABELS).find(key => ROUND_LABELS[key] === label) || '';
+  return `<div class="bcol ${className}" data-bracket-round="${esc(roundKey)}">
     <div class="bcol-label">${label}</div>
     <div class="bcol-matches">${matches.map(m => bracketCard(m)).join('')}</div>
+  </div>`;
+}
+
+async function championHistoryHTML(activeDate) {
+  if (!tournamentDays.length) return '';
+  const settled = await Promise.allSettled(
+    tournamentDays.map(day =>
+      loadBracketRows(day.id)
+        .then(rows => ({ day, sections: parseGridSheet(rows) }))
+    )
+  );
+  const items = settled
+    .filter(r => r.status === 'fulfilled')
+    .map(r => {
+      const finalSection = r.value.sections.find(s => s.key === 'final');
+      const finalMatch = finalSection?.matches?.[0];
+      const winner = finalMatch ? finalWinner(finalMatch) : null;
+      if (!winner || !winner.team || winner.team.toUpperCase() === 'TBD') return null;
+      return { date: r.value.day.date, winner, match: finalMatch };
+    })
+    .filter(Boolean)
+    .slice(0, 8);
+
+  if (!items.length) return '';
+
+  return `<section class="champion-history">
+    <div class="champion-history-head">
+      <span>Archive</span>
+      <h2>Previous Champions</h2>
+    </div>
+    <div class="champion-history-list">
+      ${items.map(item => {
+        const code = flagCodeFor(item.winner.team);
+        const flag = code
+          ? `<img src="https://flagcdn.com/w40/${code}.png" alt="${esc(item.winner.team)}">`
+          : '<span class="history-flag-empty"></span>';
+        return `<div class="champion-history-item${item.date === activeDate ? ' active' : ''}">
+          <span class="history-date">${esc(item.date)}</span>
+          <strong>${flag}${esc(item.winner.team)}</strong>
+          <span>${esc(item.match.team1)} ${esc(item.match.score1)}:${esc(item.match.score2)} ${esc(item.match.team2)}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </section>`;
+}
+
+function bracketRoundTabs() {
+  const tabs = [
+    ['1/16', 'R16'],
+    ['1/8', 'R8'],
+    ['1/4', 'QF'],
+    ['1/2', 'SF'],
+    ['final', 'Final'],
+  ];
+  return `<div class="bracket-mobile-tabs" aria-label="Play-off rounds">
+    ${tabs.map(([key, label], idx) => `<button class="bracket-mobile-tab${idx === 0 ? ' active' : ''}" type="button" data-mobile-round="${key}" onclick="setMobileBracketRound(this, '${key}')">${label}</button>`).join('')}
   </div>`;
 }
 
 function buildBracketGrid(sections) {
   // Find first round that has actual data to determine if we have anything to show
   const hasAny = ROUND_ORDER.some(k => sections.find(s => s.key === k));
-  if (!hasAny) return '<div class="error-state">No play-off data.</div>';
+  if (!hasAny) return emptyState('Play-off bracket is being prepared', 'Play-off matches will appear here as soon as the bracket sheet is filled.');
 
   const r16 = bracketRoundMatches(sections, '1/16');
   const r8 = bracketRoundMatches(sections, '1/8');
@@ -1150,7 +1334,7 @@ function buildBracketGrid(sections) {
   const finalMatches = final.slice(0, 2);
   while (finalMatches.length < 2) finalMatches.push(tbdMatch());
 
-  return `<div class="bracket-track bracket-track--split">
+  return `${bracketRoundTabs()}<div class="bracket-track bracket-track--split" data-active-mobile-round="1/16">
     <div class="bracket-side bracket-side--left">${left}</div>
     <div class="bracket-final">
       ${championSpotlight(finalMatches[0])}
@@ -1172,6 +1356,7 @@ function render(forceRefresh = false) {
   const grid    = document.getElementById('resultsGrid');
   const countEl = document.getElementById('resultsCount');
   const lfPanel = document.getElementById('lfPanel');
+  matchCenterStore.clear();
 
   if (lfPanel) lfPanel.classList.add('is-hidden');
   if (countEl) countEl.textContent = '';
@@ -1197,8 +1382,16 @@ function render(forceRefresh = false) {
 
   loadBracketRows(id, forceRefresh).then(rows => {
     const sections = parseGridSheet(rows);
+    latestTournamentHealth = {
+      view: 'Play-Off',
+      date,
+      id,
+      loaded: sections.length,
+      expected: ROUND_ORDER.length,
+      failures: [],
+    };
     if (!sections.length) {
-      grid.innerHTML = '<div class="error-state">No play-off data for this day.</div>';
+      grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Play-off bracket is being prepared', 'Play-off matches will appear here as soon as the bracket sheet is filled.');
       return;
     }
 
@@ -1220,10 +1413,25 @@ function render(forceRefresh = false) {
     grid.innerHTML =
       `<div class="league-day-header">${date}</div>` +
       `<div class="bracket-view">${buildBracketGrid(sections)}</div>` +
+      `<div id="championHistoryMount"></div>` +
+      renderDataHealth(latestTournamentHealth) +
       (total > 1 ? `<div class="pagination" style="margin-top:2rem">${pageBtns.join('')}</div>` : '');
+
+    championHistoryHTML(date).then(html => {
+      const mount = document.getElementById('championHistoryMount');
+      if (mount) mount.innerHTML = html;
+    });
   }).catch(err => {
     console.warn('[bracket] fetch failed:', err);
-    grid.innerHTML = '<div class="error-state">Could not load play-off.</div>';
+    latestTournamentHealth = {
+      view: 'Play-Off',
+      date,
+      id,
+      loaded: 0,
+      expected: ROUND_ORDER.length,
+      failures: [err.message || 'Could not load play-off'],
+    };
+    grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Could not load play-off', 'Please refresh the page or check the tournament sheet connection.');
   });
 }
 
@@ -1234,3 +1442,41 @@ window.bracketGoDay = function(idx) {
   const sec = document.getElementById('resultsSection');
   if (sec) window.scrollTo({ top: sec.offsetTop - 80, behavior: 'smooth' });
 };
+
+window.setMobileBracketRound = function(button, round) {
+  const tabs = button?.closest?.('.bracket-mobile-tabs');
+  const track = tabs?.nextElementSibling;
+  if (!tabs || !track) return;
+  tabs.querySelectorAll('.bracket-mobile-tab').forEach(btn => btn.classList.toggle('active', btn === button));
+  track.dataset.activeMobileRound = round;
+};
+
+document.addEventListener('click', event => {
+  if (event.target.closest('.ranking-note')) return;
+  const trigger = event.target.closest('[data-match-center]');
+  if (trigger) {
+    event.preventDefault();
+    openMatchCenter(trigger.dataset.matchCenter);
+    return;
+  }
+  if (event.target.closest('#matchModalClose') || event.target.id === 'matchModalBackdrop') {
+    closeMatchCenter();
+    return;
+  }
+  const roundTab = event.target.closest('.bracket-mobile-tab');
+  if (roundTab) {
+    const tabs = roundTab.closest('.bracket-mobile-tabs');
+    const track = tabs?.nextElementSibling;
+    tabs.querySelectorAll('.bracket-mobile-tab').forEach(btn => btn.classList.toggle('active', btn === roundTab));
+    if (track) track.dataset.activeMobileRound = roundTab.dataset.mobileRound;
+  }
+});
+
+document.addEventListener('keydown', event => {
+  const trigger = event.target.closest?.('[data-match-center]');
+  if (trigger && (event.key === 'Enter' || event.key === ' ')) {
+    event.preventDefault();
+    openMatchCenter(trigger.dataset.matchCenter);
+  }
+  if (event.key === 'Escape') closeMatchCenter();
+});

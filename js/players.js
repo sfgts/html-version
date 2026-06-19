@@ -1033,6 +1033,11 @@ async function init() {
     btn.addEventListener('click', () => switchView(btn.dataset.view));
   });
 
+  window.addEventListener('hashchange', () => {
+    const nextView = location.hash === '#bracket' ? 'results' : 'leagues';
+    if (nextView !== activeView) switchView(nextView);
+  });
+
   // Apply the initial hash-driven view after data is available.
   switchView(activeView);
 }
