@@ -671,7 +671,7 @@ function openMatchCenter(id) {
   const winnerSide = matchWinnerSide(m);
   const hasHT = halfTimeAvailable(m);
   const rankingNote = isRankingDrawWin(m)
-    ? `<div class="mc-note">This tied play-off match advances by FIFA Ranking tiebreaker.</div>`
+    ? `<div class="mc-note">This tied knockout bracket match advances by FIFA Ranking tiebreaker.</div>`
     : '';
 
   body.innerHTML = `<div class="mc-kicker">${esc(m.stage || 'Match Center')}</div>
@@ -810,6 +810,15 @@ function calendarTournamentDayIndex(days) {
   if (nearestFuture.idx >= 0) return nearestFuture.idx;
   if (latestPast.idx >= 0) return latestPast.idx;
   return 0;
+}
+
+function publicTournamentDays(days) {
+  const todayNum = tournamentDateNumber(kyivTodayDate());
+  if (todayNum === null) return days;
+  return days.filter(day => {
+    const num = tournamentDateNumber(day.date);
+    return num !== null && num <= todayNum;
+  });
 }
 
 function syncTournamentDayWithCalendar() {
@@ -955,7 +964,9 @@ function renderLeagues() {
     updateTournamentDateFilter();
     container.innerHTML = tournamentError
       ? `<div class="error-state">${tournamentError}</div>`
-      : '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
+      : tournamentReady
+        ? emptyState('Tournament day is being prepared', 'The next tournament day will appear automatically when it becomes available by Kyiv time.')
+        : '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
     return;
   }
 
@@ -1139,14 +1150,15 @@ async function initTournament(sources) {
 
     if (!entries.length) return;
 
-    // Sort newest first
-    tournamentDays = entries.sort((a, b) => {
+    // Sort newest first, but only expose tournament days that are already available by Kyiv date.
+    const sortedEntries = entries.sort((a, b) => {
       const ts = d => {
         const [dd, mm, yy] = d.split('.');
         return new Date(+yy, +mm - 1, +dd).getTime();
       };
       return ts(b.date) - ts(a.date);
     });
+    tournamentDays = publicTournamentDays(sortedEntries);
 
     syncTournamentDayWithCalendar();
     tournamentReady = true;
@@ -1499,7 +1511,7 @@ function bracketRoundTabs() {
 function buildBracketGrid(sections) {
   // Find first round that has actual data to determine if we have anything to show
   const hasAny = ROUND_ORDER.some(k => sections.find(s => s.key === k));
-  if (!hasAny) return emptyState('Knockout bracket is being prepared', 'Knockout bracket matches will appear here as soon as the bracket sheet is filled.');
+  if (!hasAny) return emptyState('No knockout bracket matches for this date yet', 'Knockout bracket matches will appear here as soon as this tournament day is filled.');
 
   const { r16, r8, r4, r2, final } = hasOfficialMatchPositions(sections)
     ? buildOfficialBracketRounds(sections)
@@ -1555,7 +1567,9 @@ function render(forceRefresh = false) {
     if (grid) {
       grid.innerHTML = tournamentError
         ? `<div class="error-state">${tournamentError}</div>`
-        : '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
+        : tournamentReady
+          ? emptyState('Tournament day is being prepared', 'The next tournament day will appear automatically when it becomes available by Kyiv time.')
+          : '<div class="loading-state"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
     }
     return;
   }
@@ -1578,8 +1592,13 @@ function render(forceRefresh = false) {
       expected: ROUND_ORDER.length,
       failures: [],
     };
+    const hasBracketMatches = sections.some(section => (section.matches || []).length);
     if (!sections.length) {
       grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Knockout bracket is being prepared', 'Knockout bracket matches will appear here as soon as the bracket sheet is filled.');
+      return;
+    }
+    if (!hasBracketMatches) {
+      grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('No knockout bracket matches for this date yet', 'Knockout bracket matches will appear here as soon as this tournament day is filled.');
       return;
     }
 
@@ -1617,9 +1636,9 @@ function render(forceRefresh = false) {
       id,
       loaded: 0,
       expected: ROUND_ORDER.length,
-      failures: [err.message || 'Could not load play-off'],
+      failures: [err.message || 'Could not load knockout bracket'],
     };
-    grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Could not load play-off', 'Please refresh the page or check the tournament sheet connection.');
+    grid.innerHTML = renderDataHealth(latestTournamentHealth) + emptyState('Could not load knockout bracket', 'Please refresh the page or check the tournament sheet connection.');
   });
 }
 
