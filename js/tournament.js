@@ -78,8 +78,8 @@ function playerPhotoFallback(img) {
 }
 
 const TOURNAMENT_GROUPS = [
-  'GroupA','GroupB','GroupC','GroupD','GroupE','GroupF',
-  'GroupG','GroupH','GroupI','GroupJ','GroupK','GroupL',
+  'GroupA3','GroupB3','GroupC3','GroupD3','GroupE3','GroupF3',
+  'GroupG3','GroupH3','GroupI3','GroupJ3','GroupK3','GroupL3',
 ];
 
 // â”€â”€ gviz/tq fetch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -462,7 +462,6 @@ function parseGridSheet(rows) {
     const team1 = String(row[2] ?? '').trim();
     const team2 = String(row[3] ?? '').trim();
     if (!team1 && !team2 && !time) continue;
-
     current.matches.push({
       time,
       team1,
