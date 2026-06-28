@@ -1015,7 +1015,7 @@ function renderLeagues() {
     let prev = 0;
     for (let p = 1; p <= total; p++) {
       if (p === 1 || p === total || (p >= curPage - WING && p <= curPage + WING)) {
-        if (p - prev > 1) pageBtns.push('<span class="page-ellipsis">â€¦</span>');
+        if (p - prev > 1) pageBtns.push('<span class="page-ellipsis">...</span>');
         pageBtns.push(
           `<button class="page-btn${p === curPage ? ' active' : ''}" onclick="leagueGoDay(${p - 1})">${p}</button>`
         );
@@ -1608,7 +1608,7 @@ function render(forceRefresh = false) {
     let prev = 0;
     for (let p = 1; p <= total; p++) {
       if (p === 1 || p === total || (p >= curPage - WING && p <= curPage + WING)) {
-        if (p - prev > 1) pageBtns.push('<span class="page-ellipsis">â€¦</span>');
+        if (p - prev > 1) pageBtns.push('<span class="page-ellipsis">...</span>');
         pageBtns.push(
           `<button class="page-btn${p === curPage ? ' active' : ''}" onclick="bracketGoDay(${p - 1})">${p}</button>`
         );
